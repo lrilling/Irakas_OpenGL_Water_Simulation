@@ -1,6 +1,8 @@
 
 #version 450
 
+#include classicNoise3D.glsl
+
 // Incoming vertex position, Model Space.
 layout (location = 0) in vec3 position;
 
@@ -23,6 +25,12 @@ layout (binding = 2) uniform Transform1
     mat4 model;
 };
 
+//time
+layout (binding = 3) uniform Time
+{
+	float t;
+};
+
 // Output
 layout (location = 0) out Block
 {
@@ -37,15 +45,20 @@ float tmp_z;
 float tmp;
 float pi = 3.1416;
 
+
+
 void main() {
-	tmp_x = 10 * position.x;
-	tmp_z = 10 * position.z;
+	tmp_x = 10 * position.x + t;
+	tmp_z = 10 * position.z + t;
 
 	if(tmp_x == 0 || tmp_z == 0){
 		tmp = 0.2;
 	}
+	else if(tmp_x == 0 || tmp_z == 0){
+		tmp = 0.4;
+	}
 	else{
-		tmp = 0.2 * (sin(tmp_x)/tmp_x + sin(tmp_z)/tmp_z);
+		tmp = 0.2 * (sin(tmp_x)/tmp_x + cos(tmp_z)/tmp_z);
 	}
 
 	positionSine = vec3(position.x, tmp, position.z);

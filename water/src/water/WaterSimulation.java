@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import objParser.ObjModelParser;
 import objParser.ParserModel;
@@ -188,6 +189,8 @@ public class WaterSimulation implements GLEventListener, KeyListener {
     
     private float angleX = 0.0f;
     private float angleY = 0.0f;
+    
+    private boolean drop = false;
 
     // Application setup function
     private void setup() {
@@ -294,9 +297,16 @@ public class WaterSimulation implements GLEventListener, KeyListener {
         //Copy the model matrices to the server 
         {
         	long now = System.currentTimeMillis();
-        	float diff = (float) (now-start) * 1_000;
+        	float diff = (float) (now-start) / 100;
         	
-        	timePointer.asFloatBuffer().put(diff);
+        	System.out.println("time: " + diff);
+        	
+        	if(drop) {
+        		timePointer.asFloatBuffer().put(diff);
+        	}
+        	else {
+        		timePointer.asFloatBuffer().put(0);
+        	}
         	
         	float[] rotateZ = FloatUtil.makeRotationAxis(new float[16], 0, 3*FloatUtil.PI/2f, 0f, 1f, 0f, new float[3]);
         	
@@ -344,9 +354,11 @@ public class WaterSimulation implements GLEventListener, KeyListener {
         
         gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WATER));
         
+        gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TIME, bufferNames.get(Buffer.TIME));
+        
         gl.glBindVertexArray(vertexArrayName.get(VertexArray.WATER));
         
-        gl.glDrawElements(GL_TRIANGLES, planeElementData.length, GL_UNSIGNED_SHORT, 0);
+        gl.glDrawElements(GL_LINES, planeElementData.length, GL_UNSIGNED_SHORT, 0);
         
         
         gl.glUseProgram(0);
@@ -451,6 +463,20 @@ public class WaterSimulation implements GLEventListener, KeyListener {
 			if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 				new Thread(() -> {
 					angleX += 0.08f;
+				}).start();
+			}
+			if (e.getKeyCode() == KeyEvent.VK_D) {
+				new Thread(() -> {
+					start = System.currentTimeMillis();
+					drop = true;
+					try {
+						TimeUnit.SECONDS.sleep(5);
+						drop = false;
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
 				}).start();
 			}
 		}
@@ -926,10 +952,10 @@ public class WaterSimulation implements GLEventListener, KeyListener {
  		public interface Uniform {
  			int TRANSFORM0 = 1;
  			int TRANSFORM1 = 2;
- 			int LIGHT0 = 3;
- 			int MATERIAL = 4;
- 			int CAMERA = 5;
- 			int TIME = 6;
+ 			int TIME = 3;
+ 			int LIGHT0 = 4;
+ 			int MATERIAL = 5;
+ 			int CAMERA = 6;
  		}
 
  		public interface Stream {
