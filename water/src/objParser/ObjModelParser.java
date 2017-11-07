@@ -121,13 +121,6 @@ public class ObjModelParser {
 		     if (line.length() > 0) {
 		    	char c = line.charAt(0);
 			      switch (c) {
-//			        case '#':
-//			        	break;
-//			            
-//			        case 'o':
-//			        	objModelNum++;
-//			        	break;
-			        	
 			        case 'v':
 			            if (Character.isWhitespace(line.charAt(1)))
 			            	addVertex(line);
