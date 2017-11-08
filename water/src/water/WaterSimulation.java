@@ -67,8 +67,9 @@ public class WaterSimulation implements GLEventListener, KeyListener {
     	int CAMERA_PROPERTIES = 9;
     	
     	int TIME = 10;
+    	int NOISE_TIME = 11;
     	
-    	int MAX = 11;
+    	int MAX = 12;
     }
     
     private interface VertexArray{
@@ -150,7 +151,7 @@ public class WaterSimulation implements GLEventListener, KeyListener {
 	private FloatBuffer clearColor = GLBuffers.newDirectFloatBuffer(new float[] { 0.008f, 0.616f, 0.825f, 0 });
 	private FloatBuffer clearDepth = GLBuffers.newDirectFloatBuffer(new float[] { 1 });
 	
-	private ByteBuffer globalMatricesPointer, sceneModelMatrixPointer, waterModelMatrixPointer, timePointer;
+	private ByteBuffer globalMatricesPointer, sceneModelMatrixPointer, waterModelMatrixPointer, timePointer, noiseTimePointer;
 	
 	 // Light properties (4 valued vectors due to std140 see OpenGL 4.5 reference)
     private float[] lightProperties = {
@@ -182,6 +183,7 @@ public class WaterSimulation implements GLEventListener, KeyListener {
     
     //Timer:
     private long start;
+    private long noise_start;
     
     //Variables for controls:
     private Set<Short> pressed = new HashSet<Short>();
@@ -269,7 +271,7 @@ public class WaterSimulation implements GLEventListener, KeyListener {
         
         //Store the start time of the application for the time diff:
         start = System.currentTimeMillis();
-
+        noise_start = start;
     }
 
     // GLEventListener.display implementation
@@ -298,8 +300,7 @@ public class WaterSimulation implements GLEventListener, KeyListener {
         {
         	long now = System.currentTimeMillis();
         	float diff = (float) (now-start) / 100;
-        	
-        	System.out.println("time: " + diff);
+        	float noiseDiff = (float)(now - noise_start) / 100;
         	
         	if(drop) {
         		timePointer.asFloatBuffer().put(diff);
@@ -307,6 +308,8 @@ public class WaterSimulation implements GLEventListener, KeyListener {
         	else {
         		timePointer.asFloatBuffer().put(0);
         	}
+        	
+        	noiseTimePointer.asFloatBuffer().put(noiseDiff);
         	
         	float[] rotateZ = FloatUtil.makeRotationAxis(new float[16], 0, 3*FloatUtil.PI/2f, 0f, 1f, 0f, new float[3]);
         	
@@ -348,17 +351,18 @@ public class WaterSimulation implements GLEventListener, KeyListener {
                 bufferNames.get(Buffer.CAMERA_PROPERTIES));
         
         //Draw the triangle
-        //gl.glDrawElements(GL_TRIANGLES, sceneElementData.length, GL_UNSIGNED_SHORT, 0);
+        gl.glDrawElements(GL_TRIANGLES, sceneElementData.length, GL_UNSIGNED_SHORT, 0);
         
         gl.glUseProgram(waterProgram.name);
         
         gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WATER));
         
         gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TIME, bufferNames.get(Buffer.TIME));
+        gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.NOISE_TIME, bufferNames.get(Buffer.NOISE_TIME));
         
         gl.glBindVertexArray(vertexArrayName.get(VertexArray.WATER));
         
-        gl.glDrawElements(GL_LINES, planeElementData.length, GL_UNSIGNED_SHORT, 0);
+        gl.glDrawElements(GL_TRIANGLES, planeElementData.length, GL_UNSIGNED_SHORT, 0);
         
         
         gl.glUseProgram(0);
@@ -614,6 +618,7 @@ public class WaterSimulation implements GLEventListener, KeyListener {
             
             //Create and initialize a named buffer storage for the time property
             gl.glNamedBufferStorage(bufferNames.get(Buffer.TIME), 1 * Float.BYTES, null, GL_MAP_WRITE_BIT);
+            gl.glNamedBufferStorage(bufferNames.get(Buffer.NOISE_TIME), 1 * Float.BYTES, null, GL_MAP_WRITE_BIT);
 
     	}
     	
@@ -681,6 +686,10 @@ public class WaterSimulation implements GLEventListener, KeyListener {
              gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.TIME));
              gl.glBufferStorage(GL_UNIFORM_BUFFER, modelBlockSize, null, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
              gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
+             
+             gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.NOISE_TIME));
+             gl.glBufferStorage(GL_UNIFORM_BUFFER, modelBlockSize, null, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+             gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
     	}
              globalMatricesPointer = gl.glMapNamedBufferRange(
             		 bufferNames.get(Buffer.GLOBAL_MATRICES),
@@ -702,6 +711,12 @@ public class WaterSimulation implements GLEventListener, KeyListener {
              
              timePointer = gl.glMapNamedBufferRange(
             		 bufferNames.get(Buffer.TIME), 
+            		 0, 
+            		 1*Float.BYTES, 
+            		 GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+             
+             noiseTimePointer = gl.glMapNamedBufferRange(
+            		 bufferNames.get(Buffer.NOISE_TIME), 
             		 0, 
             		 1*Float.BYTES, 
             		 GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
@@ -953,9 +968,10 @@ public class WaterSimulation implements GLEventListener, KeyListener {
  			int TRANSFORM0 = 1;
  			int TRANSFORM1 = 2;
  			int TIME = 3;
- 			int LIGHT0 = 4;
- 			int MATERIAL = 5;
- 			int CAMERA = 6;
+ 			int NOISE_TIME = 4;
+ 			int LIGHT0 = 5;
+ 			int MATERIAL = 6;
+ 			int CAMERA = 7;
  		}
 
  		public interface Stream {

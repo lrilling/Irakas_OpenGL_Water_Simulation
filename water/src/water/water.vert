@@ -3,6 +3,8 @@
 
 #include classicNoise3D.glsl
 
+#define EULER 2.7182818284590452353602874
+
 // Incoming vertex position, Model Space.
 layout (location = 0) in vec3 position;
 
@@ -31,6 +33,11 @@ layout (binding = 3) uniform Time
 	float t;
 };
 
+//noise time
+layout (binding = 4) uniform Noise_Time{
+	float nt;
+};
+
 // Output
 layout (location = 0) out Block
 {
@@ -45,21 +52,47 @@ float tmp_z;
 float tmp;
 float pi = 3.1416;
 
+float r;
+
+float constant_1 = 20;
+float constant_2 = 0.1;
+
+float height = 0.2;
+
+float gauss(float x, float y){
+	float result;
+	result = 1/(2*pi*constant_1);
+	result = result * pow(EULER, -(x*x + y*y) / (2*constant_1*constant_1));
+
+	return result;
+}
+
 
 
 void main() {
-	tmp_x = 10 * position.x + t;
-	tmp_z = 10 * position.z + t;
+	tmp_x = position.x;
+	tmp_z = position.y;
+//
+//	if(tmp_x == 0 || tmp_z == 0){
+//		tmp = 0.2;
+//	}
+//	else if(tmp_x == 0 || tmp_z == 0){
+//		tmp = 0.4;
+//	}
+//	else{
+//		tmp = 0.2 * (sin(tmp_x)/tmp_x + cos(tmp_z)/tmp_z);
+//	}
 
-	if(tmp_x == 0 || tmp_z == 0){
-		tmp = 0.2;
-	}
-	else if(tmp_x == 0 || tmp_z == 0){
-		tmp = 0.4;
+	r = sqrt(pow(position.x,2) + pow(position.z,2));
+	if(t != 0){
+		tmp = 4*(sin((r/constant_2)-t) * gauss(10*r, height - ((height/(height-1))-t)));
 	}
 	else{
-		tmp = 0.2 * (sin(tmp_x)/tmp_x + cos(tmp_z)/tmp_z);
+		tmp = position.y;
 	}
+	//tmp = height * sin((r / constant_2)+t);
+
+	tmp = tmp + 0.1*abs(pnoise(vec3(position.x-0.05*nt, position.y, position.z+0.05*nt), vec3(10.0, 10.0, 10.0)));
 
 	positionSine = vec3(position.x, tmp, position.z);
 
