@@ -34,18 +34,18 @@ layout (binding = 3) uniform Time
 };
 
 //noise time
-layout (binding = 4) uniform Noise_Time{
+layout (binding = 8) uniform Noise_Time{
 	float nt;
 };
 
 //dropData:
-layout (binding = 5) uniform Drop_Data
+layout (binding = 9) uniform Drop_Data
 {
 	float dropData[300];
 };
 
 //dropCount
-layout (binding = 6) uniform Drop_Count
+layout (binding = 10) uniform Drop_Count
 {
 	float dropCount;
 };

@@ -23,6 +23,11 @@ layout (binding = 2) uniform Transform1
     mat4 model;
 };
 
+layout (binding = 7) uniform ClipPlane
+{
+    vec4 clip_plane;
+};
+
 // Output
 layout (location = 0) out Block
 {
@@ -34,10 +39,12 @@ layout (location = 0) out Block
 void main() {
 
     // Normally gl_Position is in Clip Space and we calculate it by multiplying together all the matrices
-    gl_Position = proj * (view * (model * vec4(position,  1)));
+    gl_Position = normalize(proj * (view * (model * vec4(position,  1))));
 
     // Set the world vertex for calculating the light direction in the fragment shader
-    worldVertex = vec3(model * vec4(position, 1));
+    worldVertex = normalize(vec3(model * vec4(position, 1)));
+
+    gl_ClipDistance[0] = dot(vec4(worldVertex, 1), clip_plane);
 
     // Set the transformed normal
     N = mat3(model) * normal;

@@ -13,7 +13,7 @@ layout (location = 0) in Block
     vec3 worldVertex;
 };
 
-layout (std140, binding = 7) uniform Light0
+layout (std140, binding = 4) uniform Light0
 {
     vec3 lightPos;
     vec3 lightAmbient;
@@ -21,12 +21,12 @@ layout (std140, binding = 7) uniform Light0
     vec3 lightSpecular;
 };
 
-layout (std140, binding = 8) uniform Material
+layout (std140, binding = 5) uniform Material
 {
     float shininess;
 };
 
-layout (std140, binding = 9) uniform Camera
+layout (std140, binding = 6) uniform Camera
 {
     vec3 cameraPos;
 };
