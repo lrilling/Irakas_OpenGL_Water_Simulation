@@ -3,7 +3,7 @@
 // Incoming interpolated UV coordinates.
 layout (location = 0) in Block
 {
-    vec2 UV;
+    vec3 Color;
     vec3 N;
     vec3 worldVertex;
     vec4 clipSpace;
@@ -67,7 +67,7 @@ void main()
     //textureColor = texture(reflectionTextSampler, UV).rgba;
 
     // Normalize the interpolated normal to ensure unit length
-    NN = normalize(N);
+    NN = normalize(cross(dFdx(worldVertex), dFdy(worldVertex)));
 
     // Find the unit length normal giving the direction from the vertex to the light
     L = normalize(lightPos - worldVertex);

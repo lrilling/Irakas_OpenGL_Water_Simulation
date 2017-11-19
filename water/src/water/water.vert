@@ -56,6 +56,7 @@ layout (location = 0) out Block
     vec3 Color;
     vec3 N;
     vec3 worldVertex;
+    vec4 clipSpace;
 };
 
 vec3 positionSine;
@@ -103,8 +104,10 @@ void main() {
 
 	positionSine = vec3(position.x, tmp, position.z);
 
+	clipSpace = normalize(proj * (view * (model * vec4(positionSine,  1))));
+
     // Normally gl_Position is in Clip Space and we calculate it by multiplying together all the matrices
-    gl_Position = proj * (view * (model * vec4(positionSine,  1)));
+    gl_Position = clipSpace;
 
     // Set the world vertex for calculating the light direction in the fragment shader
     worldVertex = vec3(model * vec4(positionSine, 1));

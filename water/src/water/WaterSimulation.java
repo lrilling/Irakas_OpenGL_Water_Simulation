@@ -180,9 +180,9 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	 // Light properties (4 valued vectors due to std140 see OpenGL 4.5 reference)
     private float[] lightProperties = {
         // Position
-        0f, 6f, 0f, 0f,
+        0f, 10f, 0f, 0f,
         // Ambient Color
-        0.8f, 0.8f, 0.8f, 0f,
+        1f, 1f, 1f, 0f,
         // Diffuse Color
         1f, 1f, 1f, 0f,
         // Specular Color
@@ -316,9 +316,9 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         // Set up the program
         program = new Program(gl, "water", "waterSimulation", "waterSimulation");
 
-        waterProgram = new Program(gl, "water", "water", "waterSimulation");
+        waterProgram = new Program(gl, "water", "water", "texture");
 
-        windowProgram = new Program(gl, "water", "texture", "texture");
+//        windowProgram = new Program(gl, "water", "texture", "texture");
 
 		//Set up the mousePicker
 		mousePicker = new MousePicker(null, null, window.getWidth(), window.getHeight());
@@ -401,7 +401,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	    // Render the scene again
 	    renderScene(gl, false); // With no clipping plane
 
-	    gl.glUseProgram(windowProgram.name);
+	    gl.glUseProgram(waterProgram.name);
 
 	    // Draw the water
 	    float[] window2 = FloatUtil.makeIdentity(new float[16]);
@@ -409,10 +409,10 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
 	    gl.glBindVertexArray(vertexArrayName.get(VertexArray.WINDOW_2));
 
-	    int reflLoc = gl.glGetUniformLocation(windowProgram.name, "reflectionTextSampler");
+	    int reflLoc = gl.glGetUniformLocation(waterProgram.name, "reflectionTextSampler");
 	    gl.glUniform1i(reflLoc, 0);
 
-	    int refrLoc = gl.glGetUniformLocation(windowProgram.name, "refractionTextSampler");
+	    int refrLoc = gl.glGetUniformLocation(waterProgram.name, "refractionTextSampler");
 	    gl.glUniform1i(refrLoc, 1);
 
 	    gl.glActiveTexture(GL_TEXTURE0 + 0);
@@ -421,9 +421,23 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	    gl.glActiveTexture(GL_TEXTURE0 + 1);
 	    gl.glBindTexture(GL_TEXTURE_2D, textureNames.get(Textures.REFRACTION_COLOR_T));
 
-	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WINDOW_2));
-	    gl.glDrawElements(GL_TRIANGLES, waterElementData.length, GL_UNSIGNED_SHORT, 0);
+//	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WINDOW_2));
+//	    gl.glDrawElements(GL_TRIANGLES, waterElementData.length, GL_UNSIGNED_SHORT, 0);
 
+//	    gl.glUseProgram(waterProgram.name);
+
+	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WATER));
+
+	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TIME, bufferNames.get(Buffer.TIME));
+	       
+	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.NOISE_TIME, bufferNames.get(Buffer.NOISE_TIME));
+	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_COUNT, bufferNames.get(Buffer.DROP_COUNT));
+	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_DATA, bufferNames.get(Buffer.DROP_DATA));
+
+	    gl.glBindVertexArray(vertexArrayName.get(VertexArray.WATER));
+
+	    gl.glDrawElements(GL_TRIANGLES, planeElementData.length, GL_UNSIGNED_SHORT, 0);
+	    
 	    gl.glUseProgram(0);
 	    gl.glBindVertexArray(0);
 
@@ -535,19 +549,19 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         //Draw the triangle
         gl.glDrawElements(GL_TRIANGLES, sceneElementData.length, GL_UNSIGNED_SHORT, 0);
 
-        gl.glUseProgram(waterProgram.name);
-
-       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WATER));
-
-       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TIME, bufferNames.get(Buffer.TIME));
-       
-       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.NOISE_TIME, bufferNames.get(Buffer.NOISE_TIME));
-       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_COUNT, bufferNames.get(Buffer.DROP_COUNT));
-       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_DATA, bufferNames.get(Buffer.DROP_DATA));
-
-       gl.glBindVertexArray(vertexArrayName.get(VertexArray.WATER));
-
-       gl.glDrawElements(GL_TRIANGLES, planeElementData.length, GL_UNSIGNED_SHORT, 0);
+//        gl.glUseProgram(waterProgram.name);
+//
+//       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WATER));
+//
+//       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TIME, bufferNames.get(Buffer.TIME));
+//       
+//       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.NOISE_TIME, bufferNames.get(Buffer.NOISE_TIME));
+//       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_COUNT, bufferNames.get(Buffer.DROP_COUNT));
+//       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_DATA, bufferNames.get(Buffer.DROP_DATA));
+//
+//       gl.glBindVertexArray(vertexArrayName.get(VertexArray.WATER));
+//
+//       gl.glDrawElements(GL_TRIANGLES, planeElementData.length, GL_UNSIGNED_SHORT, 0);
 
 
 //        gl.glUseProgram(0);
