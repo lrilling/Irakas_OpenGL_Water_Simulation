@@ -16,14 +16,16 @@ public class ObjParserTest {
 		float[] vertexData = myModel.getVertexData();
 		short[] elementData = myModel.getElementData();
 		
-		System.out.println("-------------------------");
-		System.out.println("The Vertex data: ");
+		//System.out.println("-------------------------");
+		//System.out.println("The Vertex data: ");
 		int j = 1;
 		for (int i = 0; i < vertexData.length/4; i++){
-			if (j % 9 == 0)
-				System.out.println(vertexData[i]);
-			else
-				System.out.print(vertexData[i]  + " ");
+			if (j % 9 == 0) {
+				//System.out.println(vertexData[i]);
+			}
+			else {
+				//System.out.print(vertexData[i]  + " ");
+			}
 			j++;
 		}
 		

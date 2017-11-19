@@ -38,6 +38,18 @@ layout (binding = 4) uniform Noise_Time{
 	float nt;
 };
 
+//dropData:
+layout (binding = 5) uniform Drop_Data
+{
+	float dropData[300];
+};
+
+//dropCount
+layout (binding = 6) uniform Drop_Count
+{
+	float dropCount;
+};
+
 // Output
 layout (location = 0) out Block
 {
@@ -49,6 +61,7 @@ layout (location = 0) out Block
 vec3 positionSine;
 float tmp_x;
 float tmp_z;
+float tmp_t;
 float tmp;
 float pi = 3.1416;
 
@@ -70,29 +83,23 @@ float gauss(float x, float y){
 
 
 void main() {
-	tmp_x = position.x;
-	tmp_z = position.y;
-//
-//	if(tmp_x == 0 || tmp_z == 0){
-//		tmp = 0.2;
-//	}
-//	else if(tmp_x == 0 || tmp_z == 0){
-//		tmp = 0.4;
-//	}
-//	else{
-//		tmp = 0.2 * (sin(tmp_x)/tmp_x + cos(tmp_z)/tmp_z);
-//	}
+	tmp = 0;
+	for(int i = 0; i < dropCount; i++){
+		tmp_t = dropData[3*i];
+		tmp_x = dropData[3*i + 1];
+		tmp_z = dropData[3*i + 2];
 
-	r = sqrt(pow(position.x,2) + pow(position.z,2));
-	if(t != 0){
-		tmp = 4*(sin((r/constant_2)-t) * gauss(10*r, height - ((height/(height-1))-t)));
-	}
-	else{
-		tmp = position.y;
-	}
-	//tmp = height * sin((r / constant_2)+t);
+		r = 3*sqrt(pow(position.x - tmp_x,2) + pow(position.z - tmp_z ,2));
+		if(tmp_t != 0){
+			tmp = tmp + 4*(sin((r/constant_2)-tmp_t) * gauss(10*(r), height - ((height/(height-1))-1.5*tmp_t)));
+		}
+		else{
+			tmp = position.y;
+		}
 
-	tmp = tmp + 0.1*abs(pnoise(vec3(position.x-0.05*nt, position.y, position.z+0.05*nt), vec3(10.0, 10.0, 10.0)));
+	}
+
+	tmp = tmp + 0.04*abs(pnoise(vec3(10*position.x-0.05*nt, position.y, 10*position.z+0.05*nt), vec3(5.0, 5.0, 5.0)));
 
 	positionSine = vec3(position.x, tmp, position.z);
 
@@ -100,7 +107,7 @@ void main() {
     gl_Position = proj * (view * (model * vec4(positionSine,  1)));
 
     // Set the world vertex for calculating the light direction in the fragment shader
-    worldVertex = vec3(model * vec4(position, 1));
+    worldVertex = vec3(model * vec4(positionSine, 1));
 
     // Set the transformed normal
     N = mat3(model) * normal;
