@@ -459,12 +459,12 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 			if (reflCamera){
 				float[] translateReflView = FloatUtil.makeTranslation(new float[16], false, -cameraProperties[0], cameraProperties[1], -cameraProperties[2]);
 				float[] rotationXReflView = FloatUtil.makeRotationAxis(new float[16], 0, -angleX, 1f, 0f, 0f, new float[3]);
-				view = FloatUtil.multMatrix(translateReflView, FloatUtil.multMatrix(rotationXReflView, rotationYView));
+				view = FloatUtil.multMatrix(FloatUtil.multMatrix(rotationXReflView, rotationYView), translateReflView);
 			}
 			else{
 				float [] translateView = FloatUtil.makeTranslation(new float[16], false, -cameraProperties[0], -cameraProperties[1], -cameraProperties[2]);
 				float[] rotationXView = FloatUtil.makeRotationAxis(new float[16], 0, angleX, 1f, 0f, 0f, new float[3]);
-				view = FloatUtil.multMatrix(translateView, FloatUtil.multMatrix(rotationXView, rotationYView));
+				view = FloatUtil.multMatrix(FloatUtil.multMatrix(rotationXView, rotationYView), translateView);
 			}
 
         	for(int i=0; i<16; i++)
@@ -634,45 +634,49 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	// KeyListener.keyPressed implementation
 	//		Arrow-key pressed: rotation
 	//		Shift + Arrow-key pressed: translation
-	@Override
+    @Override
 	public void keyPressed(KeyEvent e) {
-		//add the pressed key to the set
+		// add the pressed key to the set
 		pressed.add(e.getKeyCode());
 
-		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
+		if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
 			shift = true;
 		}
-		if(pressed.size() > 1) {
+		if (pressed.size() > 1) {
 			Iterator<Short> it = pressed.iterator();
 			short tmp;
-			while(it.hasNext()) {
+			while (it.hasNext()) {
 				tmp = it.next();
-				if(shift) {
-					//change the camera properties if, shift and an arrow key are pressed (effects the global matrix):
-					if(tmp == KeyEvent.VK_UP) {
+				if (shift) {
+					// change the camera properties if, shift and an arrow key are pressed (effects
+					// the global matrix):
+					if (tmp == KeyEvent.VK_UP) {
+						cameraProperties[2] = cameraProperties[2] - 0.5f;
+					} else if (tmp == KeyEvent.VK_DOWN) {
+						cameraProperties[2] = cameraProperties[2] + 0.5f;
+					} else if (tmp == KeyEvent.VK_RIGHT) {
+						cameraProperties[0] = cameraProperties[0] + 0.5f;
+					} else if (tmp == KeyEvent.VK_LEFT) {
+						cameraProperties[0] = cameraProperties[0] - 0.5f;
+					}
+					else if (tmp == KeyEvent.VK_W) {
 						cameraProperties[2] = cameraProperties[2] - 0.5f;
 					}
-					else if(tmp == KeyEvent.VK_DOWN) {
+					else if (tmp == KeyEvent.VK_S) {
 						cameraProperties[2] = cameraProperties[2] + 0.5f;
-					}
-					else if(tmp == KeyEvent.VK_RIGHT) {
-						cameraProperties[0] = cameraProperties[0] + 0.5f;
-					}
-					else if(tmp == KeyEvent.VK_LEFT) {
-						cameraProperties[0] = cameraProperties[0] - 0.5f;
 					}
 				}
 
 			}
-		}
-		else {
+		} else {
 			// Destroy the window if the escape key is pressed
 			if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 				new Thread(() -> {
 					window.destroy();
 				}).start();
 			}
-			//change the rotation of the global matrix if an arrow key is pressed without shift
+			// change the rotation of the global matrix if an arrow key is pressed without
+			// shift
 			if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 				new Thread(() -> {
 					angleY += 0.08f;
@@ -693,7 +697,19 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 					angleX += 0.08f;
 				}).start();
 			}
-			if (e.getKeyCode() == KeyEvent.VK_D) {
+			if(e.getKeyCode() == KeyEvent.VK_W) {
+				cameraProperties[1] = cameraProperties[1] + 0.5f;
+			}
+			else if(e.getKeyCode() == KeyEvent.VK_S) {
+				cameraProperties[1] = cameraProperties[1] - 0.5f;
+			}
+			else if(e.getKeyCode() == KeyEvent.VK_A) {
+				cameraProperties[0] = cameraProperties[0] - 0.5f;
+			}
+			else if(e.getKeyCode() == KeyEvent.VK_D) {
+				cameraProperties[0] = cameraProperties[0] + 0.5f;
+			}
+			if (e.getKeyCode() == KeyEvent.VK_N) {
 				new Thread(() -> {
 					//System.out.println("key pressed!");
 					int tmp = maxNumDrops;
