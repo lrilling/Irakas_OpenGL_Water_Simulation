@@ -6,9 +6,10 @@ layout (location = 0) in Block
     vec2 UV;
     vec3 N;
     vec3 worldVertex;
+    vec4 clipSpace;
 };
 
-layout (std140, binding = 3) uniform Light0
+layout (std140, binding = 4) uniform Light0
 {
     vec3 lightPos;
     vec3 lightAmbient;
@@ -16,12 +17,12 @@ layout (std140, binding = 3) uniform Light0
     vec3 lightSpecular;
 };
 
-layout (std140, binding = 4) uniform Material
+layout (std140, binding = 5) uniform Material
 {
     float shininess;
 };
 
-layout (std140, binding = 5) uniform Camera
+layout (std140, binding = 6) uniform Camera
 {
     vec3 cameraPos;
 };
@@ -29,8 +30,9 @@ layout (std140, binding = 5) uniform Camera
 // Outgoing final color.
 layout (location = 0) out vec4 outputColor;
 
-// Texture sampler
-uniform sampler2D textureSampler;
+// Texture samplers
+uniform sampler2D reflectionTextSampler;
+uniform sampler2D refractionTextSampler;
 
 // Normals
 vec3 L;
@@ -45,10 +47,24 @@ vec4 ambient;
 vec4 diffuse;
 vec4 specular;
 
+// Normalize device space
+vec2 ndc;
+
 void main()
 {
-    // Retrieve the texture color
-    textureColor = texture(textureSampler, UV).rgba;
+	// We normalize the clip space by using perspective division and we convert the coordinate system
+	ndc = (clipSpace.xy/clipSpace.w)/2.0 + 0.5;
+
+	vec2 reflectionTextCoords = vec2(ndc.x, -ndc.y);
+	vec2 refractionTextCoords = vec2(ndc.x, ndc.y);
+
+	vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords).rgba;
+	vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords).rgba;
+
+    // Retrieve the texture color by mixing both textures
+    textureColor = mix(reflectionTextColor, refractionTextColor, 0.5);
+    textureColor = mix(textureColor, vec4(0.0, 0.3, 0.5, 1.0), 0.2);
+    //textureColor = texture(reflectionTextSampler, UV).rgba;
 
     // Normalize the interpolated normal to ensure unit length
     NN = normalize(N);

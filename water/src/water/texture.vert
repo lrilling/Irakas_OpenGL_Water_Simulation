@@ -29,20 +29,26 @@ layout (location = 0) out Block
     vec2 UV;
     vec3 N; // The Normal Vertex
     vec3 worldVertex;
+    vec4 clipSpace;
 };
 
 void main() {
 
-    // Normally gl_Position is in Clip Space and we calculate it by multiplying together all the matrices
-    gl_Position = proj * (view * (model * vec4(position,  1)));
+    // Set the Clip Space by multiplying together all the matrices
+	clipSpace = normalize(proj * (view * (model * vec4(position,  1))));
+
+    // Normally gl_Position is in Clip Space
+    gl_Position = clipSpace;
 
     // Set the world vertex for calculating the light direction in the fragment shader
-    worldVertex = vec3(model * vec4(position, 1));
+    worldVertex = normalize(vec3(model * vec4(position, 1)));
 
     // Set the transformed normal
     N = mat3(model) * normal;
 
     // Set the texture coordinate
     UV = uv;
+
+
 
 }
