@@ -1,4 +1,3 @@
-
 #version 450
 
 precision highp float;
@@ -52,7 +51,7 @@ void main()
 {
 	textureColor = vec4(Color, 1);
 
-//	NN = normalize(cross(dFdx(worldVertex), dFdy(worldVertex)));
+	//NN = normalize(cross(dFdx(worldVertex), dFdy(worldVertex)));
 
 	NN = normalize(N);
 

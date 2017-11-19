@@ -53,26 +53,29 @@ vec2 ndc;
 
 void main()
 {
-	// We normalize the clip space by using perspective division and we convert the coordinate system
-	ndc = (clipSpace.xy/clipSpace.w)/2.0 + 0.5;
+    // Normalize the interpolated normal to ensure unit length
+    NN = normalize(cross(dFdx(worldVertex), dFdy(worldVertex)));
 
-	vec2 reflectionTextCoords = vec2(ndc.x, -ndc.y);
-	vec2 refractionTextCoords = vec2(ndc.x, ndc.y);
+    // We normalize the clip space by using perspective division and we convert the coordinate system
+    ndc = (clipSpace.xy/clipSpace.w)/2.0 + 0.5;
 
-	vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords).rgba;
-	vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords).rgba;
+    vec2 reflectionTextCoords = vec2(ndc.x, -ndc.y);
+    vec2 refractionTextCoords = vec2(ndc.x, ndc.y);
+
+    vec2 distortion = vec2(NN.x * 0.01, NN.y);
+
+    vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords + distortion).rgba;
+    vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords).rgba;
 
     //Set the vector pointing to the camera
     vec3 viewVector = normalize(toCameraVector);
-    float refractiveFactor = dot(viewVector, vec3(0.0, 1.0, 0.0));
+    float refractiveFactor = dot(viewVector, NN);
+    refractiveFactor = pow(refractiveFactor, 0.8);
 
     // Retrieve the texture color by mixing both textures
     textureColor = mix(reflectionTextColor, refractionTextColor, refractiveFactor);
     textureColor = mix(textureColor, vec4(0.0, 0.3, 0.5, 1.0), 0.2);
     //textureColor = texture(reflectionTextSampler, UV).rgba;
-
-    // Normalize the interpolated normal to ensure unit length
-    NN = normalize(cross(dFdx(worldVertex), dFdy(worldVertex)));
 
     // Find the unit length normal giving the direction from the vertex to the light
     L = normalize(lightPos - worldVertex);
