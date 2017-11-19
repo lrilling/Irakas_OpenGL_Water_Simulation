@@ -471,8 +471,10 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         		globalMatricesPointer.putFloat(16*4 + i * 4, view[i]);
 
 			mousePicker.updateView(view);
-        }
+			
 
+        }
+        
         System.out.println(Arrays.toString(cameraProperties));
 		cameraBuffer.asFloatBuffer().put(cameraProperties);
 
