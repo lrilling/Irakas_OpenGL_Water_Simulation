@@ -180,7 +180,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	 // Light properties (4 valued vectors due to std140 see OpenGL 4.5 reference)
     private float[] lightProperties = {
         // Position
-        0f, 10f, 0f, 0f,
+        0f, 2f, 0f, 0f,
         // Ambient Color
         1f, 1f, 1f, 0f,
         // Diffuse Color
@@ -342,9 +342,11 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         // Get OpenGL 4 reference
         GL4 gl = drawable.getGL().getGL4();
-
+        
         gl.glEnable(gl.GL_CLIP_DISTANCE0);
 
+        cameraBuffer.asFloatBuffer().put(cameraProperties);
+        
         // bind the reflection fbo
         gl.glBindTexture(GL_TEXTURE_2D, 0);
         gl.glBindFramebuffer(GL_FRAMEBUFFER, frameBufferNames.get(FrameBuffers.REFLECTION_FB));
@@ -433,7 +435,10 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.NOISE_TIME, bufferNames.get(Buffer.NOISE_TIME));
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_COUNT, bufferNames.get(Buffer.DROP_COUNT));
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_DATA, bufferNames.get(Buffer.DROP_DATA));
-
+	    gl.glBindBufferBase(
+                GL_UNIFORM_BUFFER,
+                Semantic.Uniform.CAMERA,
+                bufferNames.get(Buffer.CAMERA_PROPERTIES));
 	    gl.glBindVertexArray(vertexArrayName.get(VertexArray.WATER));
 
 	    gl.glDrawElements(GL_TRIANGLES, planeElementData.length, GL_UNSIGNED_SHORT, 0);
@@ -468,8 +473,8 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 			mousePicker.updateView(view);
         }
 
-
-				cameraBuffer.asFloatBuffer().put(cameraProperties);
+        System.out.println(Arrays.toString(cameraProperties));
+		cameraBuffer.asFloatBuffer().put(cameraProperties);
 
         //Copy the model matrices to the server
         {
@@ -511,8 +516,8 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         	sceneModelMatrixPointer.asFloatBuffer().put(rotateZ);
 
-        	float[] scale = FloatUtil.makeScale(new float[16], false, 6f, 6f, 6f);
-        	float[] translate = FloatUtil.makeTranslation(new float[16], false, 0f, 1f, 0f);
+        	float[] scale = FloatUtil.makeScale(new float[16], false,8f, 8f, 8f);
+        	float[] translate = FloatUtil.makeTranslation(new float[16], false, 0f, 0f, 0f);
         	waterModelMatrixPointer.asFloatBuffer().put(FloatUtil.multMatrix(translate, scale));
 
 //        	System.out.println("Render time " + clipPlane + ": --> ClipPlane: " + clipPlanePointer.asFloatBuffer().get(0) + " " + clipPlanePointer.asFloatBuffer().get(1) + " " + clipPlanePointer.asFloatBuffer().get(2) + " " + clipPlanePointer.asFloatBuffer().get(3));

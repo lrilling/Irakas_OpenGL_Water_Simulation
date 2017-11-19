@@ -100,7 +100,7 @@ void main() {
 
 	}
 
-	tmp = tmp + 0.04*abs(pnoise(vec3(10*position.x-0.05*nt, position.y, 10*position.z+0.05*nt), vec3(5.0, 5.0, 5.0)));
+	//tmp = tmp + 0.04*abs(pnoise(vec3(10*position.x-0.05*nt, position.y, 10*position.z+0.05*nt), vec3(5.0, 5.0, 5.0)));
 
 	positionSine = vec3(position.x, tmp, position.z);
 
