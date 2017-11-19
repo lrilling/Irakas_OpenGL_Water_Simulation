@@ -7,6 +7,7 @@ layout (location = 0) in Block
     vec3 N;
     vec3 worldVertex;
     vec4 clipSpace;
+    vec3 toCameraVector;
 };
 
 layout (std140, binding = 4) uniform Light0
@@ -61,8 +62,12 @@ void main()
 	vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords).rgba;
 	vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords).rgba;
 
+    //Set the vector pointing to the camera
+    vec3 viewVector = normalize(toCameraVector);
+    float refractiveFactor = dot(viewVector, vec3(0.0, 1.0, 0.0));
+
     // Retrieve the texture color by mixing both textures
-    textureColor = mix(reflectionTextColor, refractionTextColor, 0.5);
+    textureColor = mix(reflectionTextColor, refractionTextColor, refractiveFactor);
     textureColor = mix(textureColor, vec4(0.0, 0.3, 0.5, 1.0), 0.2);
     //textureColor = texture(reflectionTextSampler, UV).rgba;
 

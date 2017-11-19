@@ -140,10 +140,10 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     };
 
     private float[] planeVertexData = {
-    	1f, 0f, 1f, 0f, 0f ,1f, 0f, 1f, 0f,
-    	-1f, 0f, 1f, 0f, 0f ,1f, 0f, 1f, 0f,
+    	 1f, 0f,  1f, 0f, 0f ,1f, 0f, 1f, 0f,
+    	-1f, 0f,  1f, 0f, 0f ,1f, 0f, 1f, 0f,
     	-1f, 0f, -1f, 0f, 0f ,1f, 0f, 1f, 0f,
-    	1f, 0f, -1f, 0f, 0f ,1f, 0f, 1f, 0f,
+    	 1f, 0f, -1f, 0f, 0f ,1f, 0f, 1f, 0f,
     };
 
     private short[] planeElementData = {
@@ -191,7 +191,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
     private float[] materialProperties = {
         // Shininess
-        100f
+        15f
     };
 
     // Camera properties
@@ -512,7 +512,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         	sceneModelMatrixPointer.asFloatBuffer().put(rotateZ);
 
         	float[] scale = FloatUtil.makeScale(new float[16], false, 6f, 6f, 6f);
-        	float[] translate = FloatUtil.makeTranslation(new float[16], false, 0f, 1f, 0f);
+        	float[] translate = FloatUtil.makeTranslation(new float[16], false, 0f, 0f, 0f);
         	waterModelMatrixPointer.asFloatBuffer().put(FloatUtil.multMatrix(translate, scale));
 
 //        	System.out.println("Render time " + clipPlane + ": --> ClipPlane: " + clipPlanePointer.asFloatBuffer().get(0) + " " + clipPlanePointer.asFloatBuffer().get(1) + " " + clipPlanePointer.asFloatBuffer().get(2) + " " + clipPlanePointer.asFloatBuffer().get(3));

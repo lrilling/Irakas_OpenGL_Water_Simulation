@@ -33,6 +33,11 @@ layout (binding = 3) uniform Time
 	float t;
 };
 
+layout (binding = 6) uniform Camera
+{
+	vec3 cameraPos;
+};
+
 //noise time
 layout (binding = 8) uniform Noise_Time{
 	float nt;
@@ -57,6 +62,7 @@ layout (location = 0) out Block
     vec3 N;
     vec3 worldVertex;
     vec4 clipSpace;
+    vec3 toCameraVector;
 };
 
 vec3 positionSine;
@@ -117,5 +123,8 @@ void main() {
 
     // Set the texture coordinate
     Color = color;
+
+    //Set the vector pointing to the camera
+    toCameraVector = cameraPos - worldVertex;
 
 }
