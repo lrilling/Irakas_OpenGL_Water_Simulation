@@ -55,7 +55,8 @@ vec2 ndc;
 void main()
 {
     // Normalize the interpolated normal to ensure unit length
-    NN = normalize(cross(dFdx(worldVertex), dFdy(worldVertex)));
+//    NN = normalize(cross(dFdx(worldVertex), dFdy(worldVertex)));
+    NN = normalize(N);
 
     // We normalize the clip space by using perspective division and we convert the coordinate system
     ndc = (clipSpace.xy/clipSpace.w)/2.0 + 0.5;
@@ -72,10 +73,10 @@ void main()
     float waterDistance = 2.0 * near * far / (far + near -(2.0 * depth - 1.0) * (far - near));
     float waterDepth = floorDistance - waterDistance;
 
-    vec2 distortion = vec2(NN.x * 0.01, NN.y);
+    vec2 distortion = vec2(NN.x, NN.y);
 
     vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords + distortion).rgba;
-    vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords).rgba;
+    vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords + distortion).rgba;
 
     //Set the vector pointing to the camera
     vec3 viewVector = normalize(toCameraVector);

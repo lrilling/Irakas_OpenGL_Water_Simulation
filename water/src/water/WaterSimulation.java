@@ -191,7 +191,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
     private float[] materialProperties = {
         // Shininess
-        15f
+        100f
     };
 
     // Camera properties
@@ -237,7 +237,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     private boolean drop = false;
 
     private float[] clippingPlane = new float[]{0,0,0,0};
-    
+
     private MousePicker mousePicker;
 
     // Application setup function
@@ -433,7 +433,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WATER));
 
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TIME, bufferNames.get(Buffer.TIME));
-	       
+
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.NOISE_TIME, bufferNames.get(Buffer.NOISE_TIME));
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_COUNT, bufferNames.get(Buffer.DROP_COUNT));
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_DATA, bufferNames.get(Buffer.DROP_DATA));
@@ -441,7 +441,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	    gl.glBindVertexArray(vertexArrayName.get(VertexArray.WATER));
 
 	    gl.glDrawElements(GL_TRIANGLES, planeElementData.length, GL_UNSIGNED_SHORT, 0);
-	    
+
 	    gl.glUseProgram(0);
 	    gl.glBindVertexArray(0);
 	    gl.glDisable(gl.GL_BLEND);
@@ -471,11 +471,10 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         		globalMatricesPointer.putFloat(16*4 + i * 4, view[i]);
 
 			mousePicker.updateView(view);
+
+			cameraBuffer.asFloatBuffer().put(cameraProperties);
+
         }
-
-
-				cameraBuffer.asFloatBuffer().put(cameraProperties);
-
         //Copy the model matrices to the server
         {
 					long now = System.currentTimeMillis();
@@ -553,13 +552,15 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         //Draw the triangle
         gl.glDrawElements(GL_TRIANGLES, sceneElementData.length, GL_UNSIGNED_SHORT, 0);
+        
+        
 
 //        gl.glUseProgram(waterProgram.name);
 //
 //       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WATER));
 //
 //       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TIME, bufferNames.get(Buffer.TIME));
-//       
+//
 //       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.NOISE_TIME, bufferNames.get(Buffer.NOISE_TIME));
 //       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_COUNT, bufferNames.get(Buffer.DROP_COUNT));
 //       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_DATA, bufferNames.get(Buffer.DROP_DATA));

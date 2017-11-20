@@ -66,10 +66,7 @@ layout (location = 0) out Block
 };
 
 vec3 positionSine;
-float tmp_x;
-float tmp_z;
-float tmp_t;
-float tmp;
+
 float pi = 3.1416;
 
 float r;
@@ -87,28 +84,42 @@ float gauss(float x, float y){
 	return result;
 }
 
+float dropFunction(float x, float z){
+	float tmp_x;
+	float tmp_z;
+	float tmp_t;
+	float tmp;
+
+	tmp = 0;
+		for(int i = 0; i < dropCount; i++){
+			tmp_t = dropData[3*i];
+			tmp_x = dropData[3*i + 1];
+			tmp_z = dropData[3*i + 2];
+
+			r = 3*sqrt(pow(x - tmp_x,2) + pow(z - tmp_z ,2));
+			if(tmp_t != 0){
+				tmp = tmp + 4*(sin((r/constant_2)-tmp_t) * gauss(10*(r), height - ((height/(height-1))-1.5*tmp_t)));
+			}
+			else{
+				tmp = position.y;
+			}
+
+		}
+
+	//	tmp = tmp + 0.04*abs(pnoise(vec3(10*position.x-0.05*nt, position.y, 10*position.z+0.05*nt), vec3(5.0, 5.0, 5.0)));
+		return tmp;
+}
+
 
 
 void main() {
-	tmp = 0;
-	for(int i = 0; i < dropCount; i++){
-		tmp_t = dropData[3*i];
-		tmp_x = dropData[3*i + 1];
-		tmp_z = dropData[3*i + 2];
+	float tmp_y = dropFunction(position.x, position.z);
+	positionSine = vec3(position.x, dropFunction(position.x, position.z), position.z);
 
-		r = 3*sqrt(pow(position.x - tmp_x,2) + pow(position.z - tmp_z ,2));
-		if(tmp_t != 0){
-			tmp = tmp + 4*(sin((r/constant_2)-tmp_t) * gauss(10*(r), height - ((height/(height-1))-1.5*tmp_t)));
-		}
-		else{
-			tmp = position.y;
-		}
+	float dx = dropFunction(position.x - 0.1, position.z) - tmp_y;
+	float dz = dropFunction(position.x, position.z - 0.1) - tmp_y;
 
-	}
-
-//	tmp = tmp + 0.04*abs(pnoise(vec3(10*position.x-0.05*nt, position.y, 10*position.z+0.05*nt), vec3(5.0, 5.0, 5.0)));
-
-	positionSine = vec3(position.x, tmp, position.z);
+	vec3 computedNormal = vec3(dx, 1, dz);
 
 	clipSpace = normalize(proj * (view * (model * vec4(positionSine,  1))));
 
@@ -119,7 +130,8 @@ void main() {
     worldVertex = vec3(model * vec4(positionSine, 1));
 
     // Set the transformed normal
-    N = mat3(model) * normal;
+//    N = mat3(model) * normal;
+    N = mat3(model) * normalize(computedNormal);
 
     // Set the texture coordinate
     Color = color;
