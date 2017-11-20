@@ -140,10 +140,10 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     };
 
     private float[] planeVertexData = {
-    	 1f, 0f,  1f, 0f, 0f ,1f, 0f, 1f, 0f,
-    	-1f, 0f,  1f, 0f, 0f ,1f, 0f, 1f, 0f,
-    	-1f, 0f, -1f, 0f, 0f ,1f, 0f, 1f, 0f,
-    	 1f, 0f, -1f, 0f, 0f ,1f, 0f, 1f, 0f,
+    	 1f, 0f,  1f, 	0f, 0f ,1f, 	0f, 1f, 0f,
+    	-1f, 0f,  1f, 	0f, 0f ,1f, 	0f, 1f, 0f,
+    	-1f, 0f, -1f, 	0f, 0f ,1f, 	0f, 1f, 0f,
+    	 1f, 0f, -1f, 	0f, 0f ,1f, 	0f, 1f, 0f,
     };
 
     private short[] planeElementData = {
@@ -414,17 +414,21 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
 	    int refrLoc = gl.glGetUniformLocation(waterProgram.name, "refractionTextSampler");
 	    gl.glUniform1i(refrLoc, 1);
+	    
+	    int depthLoc = gl.glGetUniformLocation(waterProgram.name, "depthMap");
+	    gl.glUniform1i(depthLoc, 2);
 
 	    gl.glActiveTexture(GL_TEXTURE0 + 0);
 	    gl.glBindTexture(GL_TEXTURE_2D, textureNames.get(Textures.REFLECTION_COLOR_T));
 
 	    gl.glActiveTexture(GL_TEXTURE0 + 1);
 	    gl.glBindTexture(GL_TEXTURE_2D, textureNames.get(Textures.REFRACTION_COLOR_T));
+	    
+	    gl.glActiveTexture(GL_TEXTURE0 + 2);
+	    gl.glBindTexture(GL_TEXTURE_2D, textureNames.get(Textures.REFRACTION_DEPTH_T));
 
-//	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WINDOW_2));
-//	    gl.glDrawElements(GL_TRIANGLES, waterElementData.length, GL_UNSIGNED_SHORT, 0);
-
-//	    gl.glUseProgram(waterProgram.name);
+	    gl.glEnable(gl.GL_BLEND);
+	    gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
 
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WATER));
 
@@ -440,6 +444,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	    
 	    gl.glUseProgram(0);
 	    gl.glBindVertexArray(0);
+	    gl.glDisable(gl.GL_BLEND);
 
     }
 
@@ -511,7 +516,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         	sceneModelMatrixPointer.asFloatBuffer().put(rotateZ);
 
-        	float[] scale = FloatUtil.makeScale(new float[16], false, 6f, 6f, 6f);
+        	float[] scale = FloatUtil.makeScale(new float[16], false, 7f, 7f, 7f);
         	float[] translate = FloatUtil.makeTranslation(new float[16], false, 0f, 0f, 0f);
         	waterModelMatrixPointer.asFloatBuffer().put(FloatUtil.multMatrix(translate, scale));
 
