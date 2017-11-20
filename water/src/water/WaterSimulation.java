@@ -140,10 +140,10 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     };
 
     private float[] planeVertexData = {
-    	1f, 0f, 1f, 0f, 0f ,1f, 0f, 1f, 0f,
-    	-1f, 0f, 1f, 0f, 0f ,1f, 0f, 1f, 0f,
+    	 1f, 0f,  1f, 0f, 0f ,1f, 0f, 1f, 0f,
+    	-1f, 0f,  1f, 0f, 0f ,1f, 0f, 1f, 0f,
     	-1f, 0f, -1f, 0f, 0f ,1f, 0f, 1f, 0f,
-    	1f, 0f, -1f, 0f, 0f ,1f, 0f, 1f, 0f,
+    	 1f, 0f, -1f, 0f, 0f ,1f, 0f, 1f, 0f,
     };
 
     private short[] planeElementData = {
@@ -237,7 +237,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     private boolean drop = false;
 
     private float[] clippingPlane = new float[]{0,0,0,0};
-    
+
     private MousePicker mousePicker;
 
     // Application setup function
@@ -342,11 +342,9 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         // Get OpenGL 4 reference
         GL4 gl = drawable.getGL().getGL4();
-        
+
         gl.glEnable(gl.GL_CLIP_DISTANCE0);
 
-        cameraBuffer.asFloatBuffer().put(cameraProperties);
-        
         // bind the reflection fbo
         gl.glBindTexture(GL_TEXTURE_2D, 0);
         gl.glBindFramebuffer(GL_FRAMEBUFFER, frameBufferNames.get(FrameBuffers.REFLECTION_FB));
@@ -431,18 +429,15 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WATER));
 
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TIME, bufferNames.get(Buffer.TIME));
-	       
+
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.NOISE_TIME, bufferNames.get(Buffer.NOISE_TIME));
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_COUNT, bufferNames.get(Buffer.DROP_COUNT));
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_DATA, bufferNames.get(Buffer.DROP_DATA));
-	    gl.glBindBufferBase(
-                GL_UNIFORM_BUFFER,
-                Semantic.Uniform.CAMERA,
-                bufferNames.get(Buffer.CAMERA_PROPERTIES));
+
 	    gl.glBindVertexArray(vertexArrayName.get(VertexArray.WATER));
 
 	    gl.glDrawElements(GL_TRIANGLES, planeElementData.length, GL_UNSIGNED_SHORT, 0);
-	    
+
 	    gl.glUseProgram(0);
 	    gl.glBindVertexArray(0);
 
@@ -471,13 +466,10 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         		globalMatricesPointer.putFloat(16*4 + i * 4, view[i]);
 
 			mousePicker.updateView(view);
-			
+
+			cameraBuffer.asFloatBuffer().put(cameraProperties);
 
         }
-        
-        System.out.println(Arrays.toString(cameraProperties));
-		cameraBuffer.asFloatBuffer().put(cameraProperties);
-
         //Copy the model matrices to the server
         {
 					long now = System.currentTimeMillis();
@@ -518,7 +510,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         	sceneModelMatrixPointer.asFloatBuffer().put(rotateZ);
 
-        	float[] scale = FloatUtil.makeScale(new float[16], false,8f, 8f, 8f);
+        	float[] scale = FloatUtil.makeScale(new float[16], false, 6f, 6f, 6f);
         	float[] translate = FloatUtil.makeTranslation(new float[16], false, 0f, 0f, 0f);
         	waterModelMatrixPointer.asFloatBuffer().put(FloatUtil.multMatrix(translate, scale));
 
@@ -555,13 +547,15 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         //Draw the triangle
         gl.glDrawElements(GL_TRIANGLES, sceneElementData.length, GL_UNSIGNED_SHORT, 0);
+        
+        
 
 //        gl.glUseProgram(waterProgram.name);
 //
 //       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WATER));
 //
 //       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TIME, bufferNames.get(Buffer.TIME));
-//       
+//
 //       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.NOISE_TIME, bufferNames.get(Buffer.NOISE_TIME));
 //       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_COUNT, bufferNames.get(Buffer.DROP_COUNT));
 //       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_DATA, bufferNames.get(Buffer.DROP_DATA));
@@ -636,7 +630,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	// KeyListener.keyPressed implementation
 	//		Arrow-key pressed: rotation
 	//		Shift + Arrow-key pressed: translation
-    @Override
+	@Override
 	public void keyPressed(KeyEvent e) {
 		// add the pressed key to the set
 		pressed.add(e.getKeyCode());

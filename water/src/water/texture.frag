@@ -7,6 +7,7 @@ layout (location = 0) in Block
     vec3 N;
     vec3 worldVertex;
     vec4 clipSpace;
+    vec3 toCameraVector;
 };
 
 layout (std140, binding = 4) uniform Light0
@@ -52,22 +53,30 @@ vec2 ndc;
 
 void main()
 {
-	// We normalize the clip space by using perspective division and we convert the coordinate system
-	ndc = (clipSpace.xy/clipSpace.w)/2.0 + 0.5;
+    // Normalize the interpolated normal to ensure unit length
+//    NN = normalize(cross(dFdx(worldVertex), dFdy(worldVertex)));
+    NN = normalize(N);
 
-	vec2 reflectionTextCoords = vec2(ndc.x, -ndc.y);
-	vec2 refractionTextCoords = vec2(ndc.x, ndc.y);
+    // We normalize the clip space by using perspective division and we convert the coordinate system
+    ndc = (clipSpace.xy/clipSpace.w)/2.0 + 0.5;
 
-	vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords).rgba;
-	vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords).rgba;
+    vec2 reflectionTextCoords = vec2(ndc.x, -ndc.y);
+    vec2 refractionTextCoords = vec2(ndc.x, ndc.y);
+
+    vec2 distortion = vec2(NN.x, NN.y);
+
+    vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords + distortion).rgba;
+    vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords + distortion).rgba;
+
+    //Set the vector pointing to the camera
+    vec3 viewVector = normalize(toCameraVector);
+    float refractiveFactor = dot(viewVector, NN);
+    refractiveFactor = pow(refractiveFactor, 0.8);
 
     // Retrieve the texture color by mixing both textures
-    textureColor = mix(reflectionTextColor, refractionTextColor, 0.5);
+    textureColor = mix(reflectionTextColor, refractionTextColor, refractiveFactor);
     textureColor = mix(textureColor, vec4(0.0, 0.3, 0.5, 1.0), 0.2);
     //textureColor = texture(reflectionTextSampler, UV).rgba;
-
-    // Normalize the interpolated normal to ensure unit length
-    NN = normalize(cross(dFdx(worldVertex), dFdy(worldVertex)));
 
     // Find the unit length normal giving the direction from the vertex to the light
     L = normalize(lightPos - worldVertex);
