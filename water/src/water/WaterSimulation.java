@@ -415,16 +415,20 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	    int refrLoc = gl.glGetUniformLocation(waterProgram.name, "refractionTextSampler");
 	    gl.glUniform1i(refrLoc, 1);
 
+	    int depthLoc = gl.glGetUniformLocation(waterProgram.name, "depthMap");
+	    gl.glUniform1i(depthLoc, 2);
+
 	    gl.glActiveTexture(GL_TEXTURE0 + 0);
 	    gl.glBindTexture(GL_TEXTURE_2D, textureNames.get(Textures.REFLECTION_COLOR_T));
 
 	    gl.glActiveTexture(GL_TEXTURE0 + 1);
 	    gl.glBindTexture(GL_TEXTURE_2D, textureNames.get(Textures.REFRACTION_COLOR_T));
 
-//	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WINDOW_2));
-//	    gl.glDrawElements(GL_TRIANGLES, waterElementData.length, GL_UNSIGNED_SHORT, 0);
+	    gl.glActiveTexture(GL_TEXTURE0 + 2);
+	    gl.glBindTexture(GL_TEXTURE_2D, textureNames.get(Textures.REFRACTION_DEPTH_T));
 
-//	    gl.glUseProgram(waterProgram.name);
+	    gl.glEnable(gl.GL_BLEND);
+	    gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
 
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WATER));
 
@@ -440,6 +444,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
 	    gl.glUseProgram(0);
 	    gl.glBindVertexArray(0);
+	    gl.glDisable(gl.GL_BLEND);
 
     }
 
@@ -547,8 +552,8 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         //Draw the triangle
         gl.glDrawElements(GL_TRIANGLES, sceneElementData.length, GL_UNSIGNED_SHORT, 0);
-        
-        
+
+
 
 //        gl.glUseProgram(waterProgram.name);
 //
@@ -771,12 +776,12 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 		System.out.println("Mouse pressed!");
 
 		float[] mouseRay = mousePicker.getMouseRay(e.getX(), e.getY());
-		
+
 		System.out.println("MouseRay: " + Arrays.toString(mouseRay));
 		System.out.println("CameraPosition: " + Arrays.toString(cameraProperties));
 
 		float[] dropXZ = computeIntersectionMouseRay(mouseRay);
-		
+
 		if(FloatUtil.abs(dropXZ[0]) <= 7f && FloatUtil.abs(dropXZ[1]) <= 7f)
 			addDropAt(dropXZ[0], dropXZ[1]);
 	}
@@ -1545,7 +1550,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 		float lambda = -cameraProperties[1] / mouseRay[1];
 
 		float[] intersection = {cameraProperties[0] + lambda * mouseRay[0], cameraProperties[2] + lambda * mouseRay[2]};
-		
+
 		return intersection;
 	}
 

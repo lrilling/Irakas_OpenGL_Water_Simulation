@@ -34,6 +34,7 @@ layout (location = 0) out vec4 outputColor;
 // Texture samplers
 uniform sampler2D reflectionTextSampler;
 uniform sampler2D refractionTextSampler;
+uniform sampler2D depthMap;
 
 // Normals
 vec3 L;
@@ -63,6 +64,15 @@ void main()
     vec2 reflectionTextCoords = vec2(ndc.x, -ndc.y);
     vec2 refractionTextCoords = vec2(ndc.x, ndc.y);
 
+    float near = 1.0;
+    float far = 100.0;
+    float depth = texture(depthMap, refractionTextCoords).r;
+    float floorDistance = 2.0 * near * far / (far + near -(2.0 * depth - 1.0) * (far - near));
+
+    depth = gl_FragCoord.z;
+    float waterDistance = 2.0 * near * far / (far + near -(2.0 * depth - 1.0) * (far - near));
+    float waterDepth = floorDistance - waterDistance;
+
     vec2 distortion = vec2(NN.x, NN.y);
 
     vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords + distortion).rgba;
@@ -76,7 +86,9 @@ void main()
     // Retrieve the texture color by mixing both textures
     textureColor = mix(reflectionTextColor, refractionTextColor, refractiveFactor);
     textureColor = mix(textureColor, vec4(0.0, 0.3, 0.5, 1.0), 0.2);
-    //textureColor = texture(reflectionTextSampler, UV).rgba;
+    textureColor.a = clamp(waterDepth/0.2, 0.0, 1.0);
+
+//    textureColor = vec4(waterDepth/50.0);
 
     // Find the unit length normal giving the direction from the vertex to the light
     L = normalize(lightPos - worldVertex);
