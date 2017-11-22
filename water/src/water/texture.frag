@@ -52,6 +52,13 @@ vec4 specular;
 // Normalize device space
 vec2 ndc;
 
+//Refraction indexes
+float n1 = 1.0;
+float n2 = 1.333;
+
+//Camera angle
+vec2 cameraAngle;
+
 void main()
 {
     // Normalize the interpolated normal to ensure unit length
@@ -66,17 +73,35 @@ void main()
 
     float near = 1.0;
     float far = 100.0;
-    float depth = texture(depthMap, refractionTextCoords).r;
-    float floorDistance = 2.0 * near * far / (far + near -(2.0 * depth - 1.0) * (far - near));
+    float textDepth = texture(depthMap, refractionTextCoords).r;
+    float floorDistance = 2.0 * near * far / (far + near -(2.0 * textDepth - 1.0) * (far - near));
 
-    depth = gl_FragCoord.z;
+    float depth = gl_FragCoord.z;
     float waterDistance = 2.0 * near * far / (far + near -(2.0 * depth - 1.0) * (far - near));
     float waterDepth = floorDistance - waterDistance;
 
-    vec2 distortion = vec2(NN.x, NN.y);
+    vec2 reflDistortion = vec2(NN.x * 0.7, NN.y);
 
-    vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords + distortion).rgba;
-    vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords + distortion).rgba;
+    float waterDepthY = textDepth - gl_FragCoord.z;
+
+    float angleX = atan(toCameraVector.x/toCameraVector.y);
+    float refrAngleX = asin((n1 * sin(angleX))/n2);
+    float refrX = tan(refrAngleX) * waterDepthY;
+    float realX = tan(angleX) * waterDepthY;
+
+    float refrOffsetX = refrX - realX;
+
+    float angleY = atan(toCameraVector.z/toCameraVector.y);
+    float refrAngleY = asin((n1 * sin(angleY))/n2);
+    float refrY = tan(refrAngleY) * waterDepthY;
+    float realY = tan(angleY) * waterDepthY;
+
+    float refrOffsetY = refrY - realY;
+
+    vec2 refrDistortion = vec2(refrOffsetX + NN.x*0.7, refrOffsetY);
+
+    vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords + reflDistortion).rgba;
+    vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords + refrDistortion).rgba;
 
     //Set the vector pointing to the camera
     vec3 viewVector = normalize(toCameraVector);
@@ -87,6 +112,7 @@ void main()
     textureColor = mix(reflectionTextColor, refractionTextColor, refractiveFactor);
     textureColor = mix(textureColor, vec4(0.0, 0.3, 0.5, 1.0), 0.2);
     textureColor.a = clamp(waterDepth/0.2, 0.0, 1.0);
+//    textureColor = refractionTextColor;
 
 //    textureColor = vec4(waterDepth/50.0);
 
