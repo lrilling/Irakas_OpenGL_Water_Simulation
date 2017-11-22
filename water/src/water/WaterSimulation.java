@@ -140,10 +140,10 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     };
 
     private float[] planeVertexData = {
-    	 1f, 0f,  1f, 	0f, 0f ,1f, 	0f, 1f, 0f,
-    	-1f, 0f,  1f, 	0f, 0f ,1f, 	0f, 1f, 0f,
-    	-1f, 0f, -1f, 	0f, 0f ,1f, 	0f, 1f, 0f,
-    	 1f, 0f, -1f, 	0f, 0f ,1f, 	0f, 1f, 0f,
+    	 7f, 0f,  7f, 0f, 0f ,1f, 0f, 1f, 0f,
+    	-7f, 0f,  7f, 0f, 0f ,1f, 0f, 1f, 0f,
+    	-7f, 0f, -7f, 0f, 0f ,1f, 0f, 1f, 0f,
+    	 7f, 0f, -7f, 0f, 0f ,1f, 0f, 1f, 0f,
     };
 
     private short[] planeElementData = {
@@ -414,7 +414,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
 	    int refrLoc = gl.glGetUniformLocation(waterProgram.name, "refractionTextSampler");
 	    gl.glUniform1i(refrLoc, 1);
-	    
+
 	    int depthLoc = gl.glGetUniformLocation(waterProgram.name, "depthMap");
 	    gl.glUniform1i(depthLoc, 2);
 
@@ -423,7 +423,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
 	    gl.glActiveTexture(GL_TEXTURE0 + 1);
 	    gl.glBindTexture(GL_TEXTURE_2D, textureNames.get(Textures.REFRACTION_COLOR_T));
-	    
+
 	    gl.glActiveTexture(GL_TEXTURE0 + 2);
 	    gl.glBindTexture(GL_TEXTURE_2D, textureNames.get(Textures.REFRACTION_DEPTH_T));
 
@@ -515,8 +515,8 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         	sceneModelMatrixPointer.asFloatBuffer().put(rotateZ);
 
-        	float[] scale = FloatUtil.makeScale(new float[16], false, 7f, 7f, 7f);
-        	float[] translate = FloatUtil.makeTranslation(new float[16], false, 0f, 0f, 0f);
+        	float[] scale = FloatUtil.makeScale(new float[16], false, 1f, 1f, 1f);
+        	float[] translate = FloatUtil.makeTranslation(new float[16], false, 0f, -0.2f, 0f);
         	waterModelMatrixPointer.asFloatBuffer().put(FloatUtil.multMatrix(translate, scale));
 
 //        	System.out.println("Render time " + clipPlane + ": --> ClipPlane: " + clipPlanePointer.asFloatBuffer().get(0) + " " + clipPlanePointer.asFloatBuffer().get(1) + " " + clipPlanePointer.asFloatBuffer().get(2) + " " + clipPlanePointer.asFloatBuffer().get(3));
@@ -552,8 +552,8 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         //Draw the triangle
         gl.glDrawElements(GL_TRIANGLES, sceneElementData.length, GL_UNSIGNED_SHORT, 0);
-        
-        
+
+
 
 //        gl.glUseProgram(waterProgram.name);
 //
@@ -777,11 +777,13 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
 		float[] mouseRay = mousePicker.getMouseRay(e.getX(), e.getY());
 
+		System.out.println("MouseRay: " + Arrays.toString(mouseRay));
+		System.out.println("CameraPosition: " + Arrays.toString(cameraProperties));
+
 		float[] dropXZ = computeIntersectionMouseRay(mouseRay);
 
-		addDropAt(mouseRay[0], mouseRay[1]);
-
-		System.out.println(Arrays.toString(mouseRay));
+		if(FloatUtil.abs(dropXZ[0]) <= 7f && FloatUtil.abs(dropXZ[1]) <= 7f)
+			addDropAt(dropXZ[0], dropXZ[1]);
 	}
 
 	@Override
