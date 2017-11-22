@@ -4,6 +4,8 @@
 */
 package mousePicker;
 
+import java.util.Arrays;
+
 import com.jogamp.opengl.math.FloatUtil;
 
 public class MousePicker {
@@ -43,7 +45,7 @@ public class MousePicker {
 	
 	private float[] getNormalizedDeviceCoords(int mouseX, int mouseY) {
 		float x = (2f*mouseX) / windowWidth - 1;
-		float y = (2f*mouseY) / windowHeight - 1;
+		float y = 1 - (2f*mouseY) / windowHeight;
 		
 		float[] out = {x, y};
 		return out;
@@ -55,6 +57,13 @@ public class MousePicker {
 		float[] eyeCoords = FloatUtil.multMatrixVec(invertedProjection, clipCoords, new float[4]);
 		
 		float[] output = {eyeCoords[0], eyeCoords[1], -1f, 0f};
+		
+		float outputLength = FloatUtil.sqrt(eyeCoords[0]*eyeCoords[0] + eyeCoords[1]*eyeCoords[1] + 1);
+		
+		output[0] = output[0] / outputLength;
+		output[1] = output[1] / outputLength;
+		output[2] = output[2] / outputLength;
+		
 		return output;
 	}
 	
@@ -67,7 +76,6 @@ public class MousePicker {
 		float mouseRayLength = FloatUtil.sqrt(mouseRay[0]*mouseRay[0] + mouseRay[1]*mouseRay[1] + mouseRay[2]*mouseRay[2]);
 		
 		float[] normalizedMouseRay = {mouseRay[0] / mouseRayLength, mouseRay[1] / mouseRayLength, mouseRay[2] / mouseRayLength};
-		
 		return normalizedMouseRay;
 	}
 	

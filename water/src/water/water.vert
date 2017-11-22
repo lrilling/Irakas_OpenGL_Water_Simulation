@@ -3,7 +3,8 @@
 
 #include classicNoise3D.glsl
 
-#define EULER 2.7182818284590452353602874
+#define EULER 	2.7182818284590452353602874
+#define PI  	3.1415926535897932384626433
 
 // Incoming vertex position, Model Space.
 layout (location = 0) in vec3 position;
@@ -67,24 +68,30 @@ layout (location = 0) out Block
 
 vec3 positionSine;
 
-float pi = 3.1416;
-
 float r;
+
+float widthOfWater = 7;
 
 float constant_1 = 20;
 float constant_2 = 0.1;
 
-float height = 0.2;
+float height = 0.02;
 
 float gauss(float x, float y){
 	float result;
-	result = 1/(2*pi*constant_1);
+	result = 1/(2*PI*constant_1);
 	result = result * pow(EULER, -(x*x + y*y) / (2*constant_1*constant_1));
 
 	return result;
 }
 
-float dropFunction(float x, float z){
+float dropFunction(float r, float t){
+	t = 1.5* t;
+	return 4*(widthOfWater)*(sin((r/constant_2)-0.6*t) * gauss(10*((r-0.1*t)/(0.05*t)), height - ((height/(height-1))-1.5*t)));
+}
+
+
+float addDrops(float x, float z){
 	float tmp_x;
 	float tmp_z;
 	float tmp_t;
@@ -96,9 +103,56 @@ float dropFunction(float x, float z){
 			tmp_x = dropData[3*i + 1];
 			tmp_z = dropData[3*i + 2];
 
-			r = 3*sqrt(pow(x - tmp_x,2) + pow(z - tmp_z ,2));
+			r = 3*sqrt(pow(x - tmp_x,2) + pow(z - tmp_z ,2))/(widthOfWater);
 			if(tmp_t != 0){
-				tmp = tmp + 4*(sin((r/constant_2)-tmp_t) * gauss(10*(r), height - ((height/(height-1))-1.5*tmp_t)));
+				tmp = tmp + dropFunction(r, tmp_t);
+
+				float refl = 2*widthOfWater - tmp_x;
+
+				float refl_r = r = 3*sqrt(pow(x - refl,2) + pow(z - 0 ,2))/(widthOfWater);
+
+				tmp = tmp + 0.8 * dropFunction(refl_r, tmp_t);
+
+				refl = -2*widthOfWater - tmp_x;
+
+				refl_r = r = 3*sqrt(pow(x - refl,2) + pow(z - 0 ,2))/(widthOfWater);
+
+				tmp = tmp + 0.8 * dropFunction(refl_r, tmp_t);
+
+				refl = 2*widthOfWater - tmp_z;
+
+				refl_r = r = 3*sqrt(pow(x - 0,2) + pow(z - refl ,2))/(widthOfWater);
+
+				tmp = tmp + 0.9 * dropFunction(refl_r, tmp_t);
+
+				refl = -2*widthOfWater - tmp_z;
+
+				refl_r = r = 3*sqrt(pow(x - 0,2) + pow(z - refl,2))/(widthOfWater);
+
+				tmp = tmp + 0.7 * dropFunction(refl_r, tmp_t);
+
+
+
+				//get reflections:
+				/*
+				float refl_x[4];
+				float refl_z[4];
+
+				refl_x[0] = 2*widthOfWater - tmp_x;
+				refl_x[1] = -2*widthOfWater - tmp_x;
+				refl_x[2] = 0; refl_x[3] = 0;
+
+				refl_z[0] = 0; refl_z[1] = 0;
+				refl_z[2] = 2*widthOfWater - tmp_z;
+				refl_z[3] = 2*widthOfWater - tmp_z;
+
+				float refl_r;
+				for(int j = 0; j < 4; i++){
+					refl_r = 3*sqrt(pow(x - refl_x[i],2) + pow(z - refl_z[i] ,2))/(widthOfWater);
+
+					tmp = tmp + 4*(widthOfWater)*(sin((refl_r/constant_2)-0.6*tmp_t) * gauss(10*((refl_r-0.3*tmp_t)/(0.1*tmp_t)), height - ((height/(height-1))-1.5*tmp_t)));
+				}
+				*/
 			}
 			else{
 				tmp = position.y;
@@ -106,18 +160,18 @@ float dropFunction(float x, float z){
 
 		}
 
-	//	tmp = tmp + 0.04*abs(pnoise(vec3(10*position.x-0.05*nt, position.y, 10*position.z+0.05*nt), vec3(5.0, 5.0, 5.0)));
+		tmp = tmp + 0.04*abs(pnoise(vec3(2*x-0.05*nt, position.y, 2*z+0.05*nt), vec3(5.0, 5.0, 5.0)));
 		return tmp;
 }
 
 
 
 void main() {
-	float tmp_y = dropFunction(position.x, position.z);
-	positionSine = vec3(position.x, dropFunction(position.x, position.z), position.z);
+	float tmp_y = addDrops(position.x, position.z);
+	positionSine = vec3(position.x, tmp_y, position.z);
 
-	float dx = dropFunction(position.x - 0.1, position.z) - tmp_y;
-	float dz = dropFunction(position.x, position.z - 0.1) - tmp_y;
+	float dx = addDrops(position.x - 0.05, position.z) - tmp_y;
+	float dz = addDrops(position.x, position.z - 0.05) - tmp_y;
 
 	vec3 computedNormal = vec3(dx, 1, dz);
 

@@ -140,10 +140,10 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     };
 
     private float[] planeVertexData = {
-    	 1f, 0f,  1f, 0f, 0f ,1f, 0f, 1f, 0f,
-    	-1f, 0f,  1f, 0f, 0f ,1f, 0f, 1f, 0f,
-    	-1f, 0f, -1f, 0f, 0f ,1f, 0f, 1f, 0f,
-    	 1f, 0f, -1f, 0f, 0f ,1f, 0f, 1f, 0f,
+    	 7f, 0f,  7f, 0f, 0f ,1f, 0f, 1f, 0f,
+    	-7f, 0f,  7f, 0f, 0f ,1f, 0f, 1f, 0f,
+    	-7f, 0f, -7f, 0f, 0f ,1f, 0f, 1f, 0f,
+    	 7f, 0f, -7f, 0f, 0f ,1f, 0f, 1f, 0f,
     };
 
     private short[] planeElementData = {
@@ -510,8 +510,8 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         	sceneModelMatrixPointer.asFloatBuffer().put(rotateZ);
 
-        	float[] scale = FloatUtil.makeScale(new float[16], false, 6f, 6f, 6f);
-        	float[] translate = FloatUtil.makeTranslation(new float[16], false, 0f, 0f, 0f);
+        	float[] scale = FloatUtil.makeScale(new float[16], false, 1f, 1f, 1f);
+        	float[] translate = FloatUtil.makeTranslation(new float[16], false, 0f, -0.2f, 0f);
         	waterModelMatrixPointer.asFloatBuffer().put(FloatUtil.multMatrix(translate, scale));
 
 //        	System.out.println("Render time " + clipPlane + ": --> ClipPlane: " + clipPlanePointer.asFloatBuffer().get(0) + " " + clipPlanePointer.asFloatBuffer().get(1) + " " + clipPlanePointer.asFloatBuffer().get(2) + " " + clipPlanePointer.asFloatBuffer().get(3));
@@ -771,12 +771,14 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 		System.out.println("Mouse pressed!");
 
 		float[] mouseRay = mousePicker.getMouseRay(e.getX(), e.getY());
+		
+		System.out.println("MouseRay: " + Arrays.toString(mouseRay));
+		System.out.println("CameraPosition: " + Arrays.toString(cameraProperties));
 
 		float[] dropXZ = computeIntersectionMouseRay(mouseRay);
-
-		addDropAt(mouseRay[0], mouseRay[1]);
-
-		System.out.println(Arrays.toString(mouseRay));
+		
+		if(FloatUtil.abs(dropXZ[0]) <= 7f && FloatUtil.abs(dropXZ[1]) <= 7f)
+			addDropAt(dropXZ[0], dropXZ[1]);
 	}
 
 	@Override
@@ -1543,7 +1545,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 		float lambda = -cameraProperties[1] / mouseRay[1];
 
 		float[] intersection = {cameraProperties[0] + lambda * mouseRay[0], cameraProperties[2] + lambda * mouseRay[2]};
-
+		
 		return intersection;
 	}
 
