@@ -246,6 +246,9 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     private boolean drop = false;
 
     private MousePicker mousePicker;
+    private int mouseXTmp = 0;
+    private int mouseYTmp = 0;
+    
 
     // Application setup function
     private void setup() {
@@ -848,7 +851,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-
+		
 	}
 
 	@Override
@@ -858,7 +861,37 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-
+		if(FloatUtil.abs(e.getX()-mouseXTmp) >= 20 && FloatUtil.abs(e.getY()-mouseYTmp) >= 20) {
+			
+			float[] mouseRay = mousePicker.getMouseRay(e.getX(), e.getY());
+	
+			float[] dropXZ = computeIntersectionMouseRay(mouseRay);
+	
+			if(FloatUtil.abs(dropXZ[0]) <= 7f && FloatUtil.abs(dropXZ[1]) <= 7f)
+				addDropAt(dropXZ[0], dropXZ[1]);
+			
+			else {
+				float[] cameraH = {cameraProperties[0], cameraProperties[1], cameraProperties[2], 1f};
+				float angleX = e.getX() - mouseXTmp * 0.0001f;
+				float angleY = e.getY() - mouseYTmp * 0.0001f;
+				
+				float[] rotateX = FloatUtil.makeRotationAxis(new float[16], 0, angleX, 0f, 1f, 0f, new float[3]);
+				float[] rotateY = FloatUtil.makeRotationAxis(new float[16], 0, angleY, 1f, 0f, 0f, new float[3]);
+				
+				float[] rotate = FloatUtil.multMatrix(rotateX, rotateY);
+				
+				cameraH = FloatUtil.multMatrixVec(rotate, cameraH, new float[4]);
+				cameraProperties[0] = cameraH[0];
+				cameraProperties[1] = cameraH[1];
+				cameraProperties[2] = cameraH[2];
+				
+			}
+			mouseXTmp = e.getX();
+			mouseYTmp = e.getY();
+				
+		}
+		
+		
 	}
 
 	@Override
