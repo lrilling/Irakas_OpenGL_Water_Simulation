@@ -60,103 +60,107 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
     	int WATER_V = 2;
     	int WATER_E = 3;
-
-    	int WINDOW_V = 4;
-    	int WINDOW_E = 5;
+    	
+    	int WATER_DOWN_V = 4;
+    	int WATER_DOWN_E = 5;
 
     	int GLOBAL_MATRICES = 6;
 
     	int MODEL_MATRIX_SCENE = 7;
     	int MODEL_MATRIX_WATER = 8;
-    	int MODEL_MATRIX_WINDOW = 9;
+    	int MODEL_MATRIX_WATER_DOWN = 9;
 
     	int LIGHT_PROPERTIES = 10;
-    	int MATERIAL_PROPERTIES = 11;
-    	int CAMERA_PROPERTIES = 12;
+    	int SCENE_MATERIAL_PROPERTIES = 11;
+    	int WATER_MATERIAL_PROPERTIES = 12;
+    	int CAMERA_PROPERTIES = 13;
 
-			int DROP_DATA = 13;
-			int DROP_COUNT = 14;
+		int DROP_DATA = 14;
+		int DROP_COUNT = 15;
 
-			int TIME = 15;
-			int NOISE_TIME = 16;
+		int TIME = 16;
+		int NOISE_TIME = 17;
 
-    	int CLIP_PLANE = 17;
-
-    	int WINDOW_V_2 = 18;
-    	int WINDOW_E_2 = 19;
-    	int MODEL_MATRIX_WINDOW_2 = 20;
-
-    	int MAX = 21;
+    	int CLIP_PLANE = 18;
+    	
+    	int MAX = 19;
     }
 
     private interface VertexArray{
     	int SCENE = 0;
     	int WATER = 1;
-    	int WINDOW = 2;
-    	int WINDOW_2 = 3;
+    	int WATER_DOWN = 2;
     	int MAX = 4;
     }
 
     private interface FrameBuffers{
     	int REFLECTION_FB = 0;
     	int REFRACTION_FB = 1;
-    	int MAX = 2;
+    	int REFLECTION_FB_DOWN = 2;
+    	int REFRACTION_FB_DOWN = 3;
+    	int MAX = 4;
     }
 
     private interface Textures{
     	int REFLECTION_COLOR_T = 0;
-    	int REFRACTION_COLOR_T = 1;
-    	int REFRACTION_DEPTH_T = 2;
-    	int MAX = 3;
+    	int REFRACTION_COLOR_T = 2;
+    	int REFRACTION_DEPTH_T = 3;
+    	
+    	int REFLECTION_COLOR_T_DOWN = 4;
+    	int REFRACTION_COLOR_T_DOWN = 5;
+    	int REFRACTION_DEPTH_T_DOWN = 6;
+    	
+    	int MAX = 7;
     }
 
     private interface DepthBuffer{
     	int REFLECTION_DEPTH_B = 0;
-    	int MAX = 1;
+    	int REFLECTION_DEPTH_B_DOWN = 1;
+    	int MAX = 2;
     }
 
     private float[] sceneVertexData;
     private short[] sceneElementData;
 
-    // Vertex data (3 POSITION - 2 UV - 3 NORMAL)
-    private float[] windowVertexData = {
-            -6f, 	6f, 	5,	0, 0,	0, 0, 1,
-            -2f, 	6f, 	5,	1, 0,	0, 0, 1,
-            -2f, 	3f, 	5,	1, 1,	0, 0, 1,
-            -6f, 	3f, 	5,	0, 1,	0, 0, 1
-         };
+//    // Vertex data (3 POSITION - 2 UV - 3 NORMAL)
+//    private float[] windowVertexData = {
+//            -6f, 	6f, 	5,	0, 0,	0, 0, 1,
+//            -2f, 	6f, 	5,	1, 0,	0, 0, 1,
+//            -2f, 	3f, 	5,	1, 1,	0, 0, 1,
+//            -6f, 	3f, 	5,	0, 1,	0, 0, 1
+//         };
 
     private float[] waterVertexData = {
-            -8f, 	0f, 	-8f,		0, 0,	0, 1, 0,
-             8f, 	0f, 	-8f,		1, 0,	0, 1, 0,
-             8f, 	0f, 	 8f,		1, 1,	0, 1, 0,
-            -8f, 	0f, 	 8f,		0, 1,	0, 1, 0
-         };
+    	 7f, 0f,  7f, 		0f, 0f ,1f, 	0f, 1f, 0f,
+    	-7f, 0f,  7f, 		0f, 0f ,1f, 	0f, 1f, 0f,
+    	-7f, 0f, -7f, 		0f, 0f ,1f, 	0f, 1f, 0f,
+    	 7f, 0f, -7f, 		0f, 0f ,1f, 	0f, 1f, 0f,
+    };
+
+    private short[] waterElementData = {
+    		0, 1, 2,
+    		2, 3, 0
+    };
+    
+    private float[] waterDownVertexData = {
+          7f, -0.3f,  7f,		0f, 0f ,1f,		0f, -1f, 0f,
+         -7f, -0.3f,  7f,		0f, 0f ,1f,		0f, -1f, 0f,
+         -7f, -0.3f, -7f,		0f, 0f ,1f,		0f, -1f, 0f,
+          7f, -0.3f, -7f,		0f, 0f ,1f, 	0f, -1f, 0f
+    };
 
     // Window triangles
-    private short[] waterElementData = {
-       0, 1, 2,
-       2, 3, 0
-    };
-
-    private float[] planeVertexData = {
-    	 7f, 0f,  7f, 0f, 0f ,1f, 0f, 1f, 0f,
-    	-7f, 0f,  7f, 0f, 0f ,1f, 0f, 1f, 0f,
-    	-7f, 0f, -7f, 0f, 0f ,1f, 0f, 1f, 0f,
-    	 7f, 0f, -7f, 0f, 0f ,1f, 0f, 1f, 0f,
-    };
-
-    private short[] planeElementData = {
+    private short[] waterDownElementData = {
     		0, 1, 2,
     		2, 3, 0
     };
 
-		private int maxNumDrops = 100;
-		private int numDrops = 0;
-		private float[][] dropPositions = new float[maxNumDrops][2];
-		private long[] dropStartTime = new long[maxNumDrops];
+	private int maxNumDrops = 100;
+	private int numDrops = 0;
+	private float[][] dropPositions = new float[maxNumDrops][2];
+	private long[] dropStartTime = new long[maxNumDrops];
 
-		private float[] dropData = new float[3 * maxNumDrops];
+	private float[] dropData = new float[3 * maxNumDrops];
 
     // Create buffers for the names
  	private IntBuffer bufferNames = GLBuffers.newDirectIntBuffer(Buffer.MAX);
@@ -171,7 +175,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	private FloatBuffer clearColor = GLBuffers.newDirectFloatBuffer(new float[] { 0.008f, 0.616f, 0.825f, 0 });
 	private FloatBuffer clearDepth = GLBuffers.newDirectFloatBuffer(new float[] { 1 });
 
-	private ByteBuffer globalMatricesPointer, sceneModelMatrixPointer, waterModelMatrixPointer, windowModelMatrixPointer2, timePointer, noiseTimePointer, clipPlanePointer;
+	private ByteBuffer globalMatricesPointer, sceneModelMatrixPointer, waterModelMatrixPointer, waterDownModelMatrixPointer, timePointer, noiseTimePointer, clipPlanePointer;
 
 	// Create a direct buffer for dropPositions and dropStartTime:
 	private ByteBuffer dropBuffer, dropCountBuffer;
@@ -189,9 +193,14 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         1f, 1f, 1f, 0f
     };
 
-    private float[] materialProperties = {
+    private float[] sceneMaterialProperties = {
         // Shininess
-        100f
+        100.0f
+    };
+    
+    private float[] waterMaterialProperties = {
+        // Shininess
+        2.0f
     };
 
     // Camera properties
@@ -209,7 +218,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     private GLProfile glProfile;
 
     // Program instance reference
-    private Program program, waterProgram, windowProgram;
+    private Program program, waterProgram, waterDownProgram, windowProgram;
 
     //Bug 1287:
     private boolean bug1287 = true;
@@ -235,8 +244,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     private int refractionHeight = 720;
 
     private boolean drop = false;
-
-    private float[] clippingPlane = new float[]{0,0,0,0};
 
     private MousePicker mousePicker;
 
@@ -307,9 +314,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         //Initialize vertex array
         initVertexArray(gl);
 
-        //Initialize texture data
-//        initTestTexture(gl);
-
         //Initialize frame buffers
         initFrameBuffers(gl);
 
@@ -317,8 +321,8 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         program = new Program(gl, "water", "waterSimulation", "waterSimulation");
 
         waterProgram = new Program(gl, "water", "water", "texture");
-
-//        windowProgram = new Program(gl, "water", "texture", "texture");
+        
+        waterDownProgram = new Program(gl, "water", "water", "textureDown");
 
 		//Set up the mousePicker
 		mousePicker = new MousePicker(null, null, window.getWidth(), window.getHeight());
@@ -345,7 +349,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         gl.glEnable(gl.GL_CLIP_DISTANCE0);
 
-        // bind the reflection fbo
+        // -------------- bind the reflection fbo --------------------------
         gl.glBindTexture(GL_TEXTURE_2D, 0);
         gl.glBindFramebuffer(GL_FRAMEBUFFER, frameBufferNames.get(FrameBuffers.REFLECTION_FB));
         gl.glViewport(0, 0, reflectionWidth, reflectionHeight);
@@ -367,7 +371,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         gl.glFinish();
 
-	    // bind the refraction fbo
+	    // ----------------- bind the refraction fbo --------------------------
 	    gl.glBindTexture(GL_TEXTURE_2D, 0);
 	    gl.glBindFramebuffer(GL_FRAMEBUFFER, frameBufferNames.get(FrameBuffers.REFRACTION_FB));
 	    gl.glViewport(0, 0, refractionWidth, refractionHeight);
@@ -388,6 +392,52 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	    renderScene(gl, false); // With the refraction clipping plane
 
 	    gl.glFinish();
+	    
+	    // -------------- bind the down reflection fbo --------------------------
+        gl.glBindTexture(GL_TEXTURE_2D, 0);
+        gl.glBindFramebuffer(GL_FRAMEBUFFER, frameBufferNames.get(FrameBuffers.REFLECTION_FB_DOWN));
+        gl.glViewport(0, 0, reflectionWidth, reflectionHeight);
+
+        gl.glClearBufferfv(GL_COLOR, 0, clearColor);
+        gl.glClearBufferfv(GL_DEPTH, 0, clearDepth);
+
+        clippingPlane = new float[]{0f, -1f, 0f, waterHeight};
+        clipPlanePointer.asFloatBuffer().put(clippingPlane);
+
+        gl.glBindBufferBase(
+        		GL_UNIFORM_BUFFER,
+        		Semantic.Uniform.CLIP_PLANE,
+        		bufferNames.get(Buffer.CLIP_PLANE));
+
+        gl.glFinish();
+
+        renderScene(gl, true); // With the reflection clipping plane
+
+        gl.glFinish();
+        
+     // ----------------- bind the down refraction fbo --------------------------
+	    gl.glBindTexture(GL_TEXTURE_2D, 0);
+	    gl.glBindFramebuffer(GL_FRAMEBUFFER, frameBufferNames.get(FrameBuffers.REFRACTION_FB_DOWN));
+	    gl.glViewport(0, 0, refractionWidth, refractionHeight);
+
+	    gl.glClearBufferfv(GL_COLOR, 0, clearColor);
+	    gl.glClearBufferfv(GL_DEPTH, 0, clearDepth);
+
+	    clippingPlane = new float[]{0f, 1f, 0f, -waterHeight};
+	    clipPlanePointer.asFloatBuffer().put(clippingPlane);
+
+	    gl.glBindBufferBase(
+	     	GL_UNIFORM_BUFFER,
+	     	Semantic.Uniform.CLIP_PLANE,
+	     	bufferNames.get(Buffer.CLIP_PLANE));
+
+        gl.glFinish();
+
+	    renderScene(gl, false); // With the refraction clipping plane
+
+	    gl.glFinish();
+	    
+	    // --------------------------------------------------------------------
 
 	    // Unbind the fbo
 	    gl.glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -398,17 +448,12 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	    gl.glClearBufferfv(GL_COLOR, 0, clearColor);
 	    gl.glClearBufferfv(GL_DEPTH, 0, clearDepth);
 
-	    // Render the scene again
+	    // ------------------ Render the scene again ---------------------------
 	    renderScene(gl, false); // With no clipping plane
 
+	    // Render the water
 	    gl.glUseProgram(waterProgram.name);
-
-	    // Draw the water
-	    float[] window2 = FloatUtil.makeIdentity(new float[16]);
-	    windowModelMatrixPointer2.asFloatBuffer().put(window2);
-
-	    gl.glBindVertexArray(vertexArrayName.get(VertexArray.WINDOW_2));
-
+    	
 	    int reflLoc = gl.glGetUniformLocation(waterProgram.name, "reflectionTextSampler");
 	    gl.glUniform1i(reflLoc, 0);
 
@@ -437,11 +482,43 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.NOISE_TIME, bufferNames.get(Buffer.NOISE_TIME));
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_COUNT, bufferNames.get(Buffer.DROP_COUNT));
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_DATA, bufferNames.get(Buffer.DROP_DATA));
+	    
+	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.MATERIAL, bufferNames.get(Buffer.WATER_MATERIAL_PROPERTIES));
 
 	    gl.glBindVertexArray(vertexArrayName.get(VertexArray.WATER));
 
-	    gl.glDrawElements(GL_TRIANGLES, planeElementData.length, GL_UNSIGNED_SHORT, 0);
+	    gl.glDrawElements(GL_TRIANGLES, waterElementData.length, GL_UNSIGNED_SHORT, 0);
+	    
+	    // Render the down side of the water
+	    
+	    gl.glUseProgram(waterDownProgram.name);
+	    
+	    int reflLoc2 = gl.glGetUniformLocation(waterDownProgram.name, "reflectionTextSampler");
+	    gl.glUniform1i(reflLoc2, 0);
 
+	    int refrLoc2 = gl.glGetUniformLocation(waterDownProgram.name, "refractionTextSampler");
+	    gl.glUniform1i(refrLoc2, 1);
+
+	    int depthLoc2 = gl.glGetUniformLocation(waterDownProgram.name, "depthMap");
+	    gl.glUniform1i(depthLoc2, 2);
+	    
+	    gl.glActiveTexture(GL_TEXTURE0 + 0);
+	    gl.glBindTexture(GL_TEXTURE_2D, textureNames.get(Textures.REFLECTION_COLOR_T_DOWN));
+
+	    gl.glActiveTexture(GL_TEXTURE0 + 1);
+	    gl.glBindTexture(GL_TEXTURE_2D, textureNames.get(Textures.REFRACTION_COLOR_T_DOWN));
+
+	    gl.glActiveTexture(GL_TEXTURE0 + 2);
+	    gl.glBindTexture(GL_TEXTURE_2D, textureNames.get(Textures.REFRACTION_DEPTH_T_DOWN));
+
+	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WATER_DOWN));
+
+	    gl.glBindVertexArray(vertexArrayName.get(VertexArray.WATER_DOWN));
+
+	    gl.glDrawElements(GL_TRIANGLES, waterDownElementData.length, GL_UNSIGNED_SHORT, 0);
+	    
+	    // ----------------------------------------------------------------------------------------
+	    
 	    gl.glUseProgram(0);
 	    gl.glBindVertexArray(0);
 	    gl.glDisable(gl.GL_BLEND);
@@ -514,10 +591,14 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         	float[] rotateZ = FloatUtil.makeRotationEuler(new float[16], 0, 0, 3*FloatUtil.PI/2f, 0);
 
         	sceneModelMatrixPointer.asFloatBuffer().put(rotateZ);
-
-        	float[] scale = FloatUtil.makeScale(new float[16], false, 1f, 1f, 1f);
-        	float[] translate = FloatUtil.makeTranslation(new float[16], false, 0f, -0.2f, 0f);
-        	waterModelMatrixPointer.asFloatBuffer().put(FloatUtil.multMatrix(translate, scale));
+        	
+    	    float[] scale = FloatUtil.makeScale(new float[16], false, 1f, 1f, 1f);
+    	    float[] translate = FloatUtil.makeTranslation(new float[16], false, 0f, -0.2f, 0f); 	
+    	    waterModelMatrixPointer.asFloatBuffer().put(FloatUtil.multMatrix(translate, scale));
+    	    
+    	    float[] rotateX = FloatUtil.makeRotationEuler(new float[16], 0, FloatUtil.PI, 0, 0);
+    	    float[] waterDown = FloatUtil.multMatrix(rotateX, scale);
+    	    waterDownModelMatrixPointer.asFloatBuffer().put(FloatUtil.multMatrix(translate, waterDown));
 
 //        	System.out.println("Render time " + clipPlane + ": --> ClipPlane: " + clipPlanePointer.asFloatBuffer().get(0) + " " + clipPlanePointer.asFloatBuffer().get(1) + " " + clipPlanePointer.asFloatBuffer().get(2) + " " + clipPlanePointer.asFloatBuffer().get(3));
 
@@ -542,7 +623,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         gl.glBindBufferBase(
                 GL_UNIFORM_BUFFER,
                 Semantic.Uniform.MATERIAL,
-                bufferNames.get(Buffer.MATERIAL_PROPERTIES));
+                bufferNames.get(Buffer.SCENE_MATERIAL_PROPERTIES));
 
         // Bind the ligh properties buffer to a specified uniform index
         gl.glBindBufferBase(
@@ -552,26 +633,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         //Draw the triangle
         gl.glDrawElements(GL_TRIANGLES, sceneElementData.length, GL_UNSIGNED_SHORT, 0);
-
-
-
-//        gl.glUseProgram(waterProgram.name);
-//
-//       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WATER));
-//
-//       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TIME, bufferNames.get(Buffer.TIME));
-//
-//       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.NOISE_TIME, bufferNames.get(Buffer.NOISE_TIME));
-//       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_COUNT, bufferNames.get(Buffer.DROP_COUNT));
-//       gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_DATA, bufferNames.get(Buffer.DROP_DATA));
-//
-//       gl.glBindVertexArray(vertexArrayName.get(VertexArray.WATER));
-//
-//       gl.glDrawElements(GL_TRIANGLES, planeElementData.length, GL_UNSIGNED_SHORT, 0);
-
-
-//        gl.glUseProgram(0);
-//        gl.glBindVertexArray(0);
 
     }
 
@@ -607,8 +668,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         gl.glUnmapNamedBuffer(bufferNames.get(Buffer.GLOBAL_MATRICES));
         gl.glUnmapNamedBuffer(bufferNames.get(Buffer.MODEL_MATRIX_SCENE));
         gl.glUnmapNamedBuffer(bufferNames.get(Buffer.MODEL_MATRIX_WATER));
-        gl.glUnmapNamedBuffer(bufferNames.get(Buffer.MODEL_MATRIX_WINDOW));
-        gl.glUnmapNamedBuffer(bufferNames.get(Buffer.MODEL_MATRIX_WINDOW_2));
+        gl.glUnmapNamedBuffer(bufferNames.get(Buffer.MODEL_MATRIX_WATER_DOWN));
         gl.glUnmapNamedBuffer(bufferNames.get(Buffer.CLIP_PLANE));
         gl.glUnmapNamedBuffer(bufferNames.get(Buffer.TIME));
 
@@ -625,7 +685,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         //Delete the buffers
         gl.glDeleteBuffers(Buffer.MAX, bufferNames);
-        gl.glDeleteBuffers(DepthBuffer.MAX, depthBufferName);
+//        gl.glDeleteBuffers(DepthBuffer.MAX, depthBufferName);
 
         //Delete textures
         gl.glDeleteTextures(Textures.MAX, textureNames);
@@ -875,31 +935,39 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     	int detail = 5;
 
     	for(int i = 0; i<detail; i++) {
-    		planeVertexData = subdivideMesh(planeVertexData, planeElementData);
-        	planeElementData = createMeshElementData(planeVertexData);
+    		waterVertexData = subdivideMesh(waterVertexData, waterElementData);
+    		waterElementData = createMeshElementData(waterVertexData);
     	}
 
+    	for(int i = 0; i<detail; i++) {
+    		waterDownVertexData = subdivideMesh(waterDownVertexData, waterDownElementData);
+    		waterDownElementData = createMeshElementData(waterDownVertexData);
+    	}
 
-    	System.out.println("VertexDataWater: " + Arrays.toString(planeVertexData));
-    	System.out.println("ElementDataWater: " + Arrays.toString(planeElementData));
+    	System.out.println("VertexDataWater: " + Arrays.toString(waterVertexData));
+    	System.out.println("ElementDataWater: " + Arrays.toString(waterElementData));
 
     	FloatBuffer sceneVertexBuffer = GLBuffers.newDirectFloatBuffer(sceneVertexData);
     	ShortBuffer sceneElementBuffer = GLBuffers.newDirectShortBuffer(sceneElementData);
 
-    	FloatBuffer waterVertexBuffer = GLBuffers.newDirectFloatBuffer(planeVertexData);
-    	ShortBuffer waterElementBuffer = GLBuffers.newDirectShortBuffer(planeElementData);
+    	FloatBuffer waterVertexBuffer = GLBuffers.newDirectFloatBuffer(waterVertexData);
+    	ShortBuffer waterElementBuffer = GLBuffers.newDirectShortBuffer(waterElementData);
+    	
+    	FloatBuffer waterDownVertexBuffer = GLBuffers.newDirectFloatBuffer(waterDownVertexData);
+    	ShortBuffer waterDownElementBuffer = GLBuffers.newDirectShortBuffer(waterDownElementData);
 
-    	FloatBuffer windowVertexBuffer = GLBuffers.newDirectFloatBuffer(windowVertexData);
-    	ShortBuffer windowElementBuffer = GLBuffers.newDirectShortBuffer(waterElementData);
-
-    	FloatBuffer windowVertexBuffer2 = GLBuffers.newDirectFloatBuffer(waterVertexData);
-    	ShortBuffer windowElementBuffer2 = GLBuffers.newDirectShortBuffer(waterElementData);
+//    	FloatBuffer windowVertexBuffer = GLBuffers.newDirectFloatBuffer(windowVertexData);
+//    	ShortBuffer windowElementBuffer = GLBuffers.newDirectShortBuffer(planeDownElementData);
+//
+//    	FloatBuffer windowVertexBuffer2 = GLBuffers.newDirectFloatBuffer(planeDownVertexData);
+//    	ShortBuffer windowElementBuffer2 = GLBuffers.newDirectShortBuffer(planeDownElementData);
 
     	 // Create a direct buffer for the light properties
         FloatBuffer lightBuffer = GLBuffers.newDirectFloatBuffer(lightProperties);
 
         // Create a direct buffer for the material properties
-        FloatBuffer materialBuffer = GLBuffers.newDirectFloatBuffer(materialProperties);
+        FloatBuffer sceneMaterialBuffer = GLBuffers.newDirectFloatBuffer(sceneMaterialProperties);
+        FloatBuffer waterMaterialBuffer = GLBuffers.newDirectFloatBuffer(waterMaterialProperties);
 
     	gl.glCreateBuffers(Buffer.MAX, bufferNames);
 
@@ -907,14 +975,14 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     		//Buffer storage for vertex data:
     		gl.glNamedBufferStorage(bufferNames.get(Buffer.SCENE_V), sceneVertexBuffer.capacity() * Float.BYTES, sceneVertexBuffer, GL_STATIC_DRAW);
     		gl.glNamedBufferStorage(bufferNames.get(Buffer.WATER_V), waterVertexBuffer.capacity() * Float.BYTES, waterVertexBuffer, GL_STATIC_DRAW);
-    		gl.glNamedBufferStorage(bufferNames.get(Buffer.WINDOW_V), windowVertexBuffer.capacity() * Float.BYTES, windowVertexBuffer, GL_STATIC_DRAW);
-    		gl.glNamedBufferStorage(bufferNames.get(Buffer.WINDOW_V_2), windowVertexBuffer2.capacity() * Float.BYTES, windowVertexBuffer2, GL_STATIC_DRAW);
+    		gl.glNamedBufferStorage(bufferNames.get(Buffer.WATER_DOWN_V), waterDownVertexBuffer.capacity() * Float.BYTES, waterDownVertexBuffer, GL_STATIC_DRAW);
+//    		gl.glNamedBufferStorage(bufferNames.get(Buffer.WINDOW_V_2), windowVertexBuffer2.capacity() * Float.BYTES, windowVertexBuffer2, GL_STATIC_DRAW);
 
     		//Buffer storage for element data:
     		gl.glNamedBufferStorage(bufferNames.get(Buffer.SCENE_E), sceneElementBuffer.capacity() * Short.BYTES, sceneElementBuffer, GL_STATIC_DRAW);
     		gl.glNamedBufferStorage(bufferNames.get(Buffer.WATER_E), waterElementBuffer.capacity()*Short.BYTES, waterElementBuffer, GL_STATIC_DRAW);
-    		gl.glNamedBufferStorage(bufferNames.get(Buffer.WINDOW_E), windowElementBuffer.capacity()*Short.BYTES, windowElementBuffer, GL_STATIC_DRAW);
-    		gl.glNamedBufferStorage(bufferNames.get(Buffer.WINDOW_E_2), windowElementBuffer2.capacity() * Float.BYTES, windowElementBuffer2, GL_STATIC_DRAW);
+    		gl.glNamedBufferStorage(bufferNames.get(Buffer.WATER_DOWN_E), waterDownElementBuffer.capacity()*Short.BYTES, waterDownElementBuffer, GL_STATIC_DRAW);
+//    		gl.glNamedBufferStorage(bufferNames.get(Buffer.WINDOW_E_2), windowElementBuffer2.capacity() * Float.BYTES, windowElementBuffer2, GL_STATIC_DRAW);
 
     		//Buffer for global Matrix:
     		gl.glNamedBufferStorage(bufferNames.get(Buffer.GLOBAL_MATRICES), 16*4*2, null, GL_MAP_WRITE_BIT);
@@ -922,14 +990,15 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     		//Buffer for model Matrix:
     		gl.glNamedBufferStorage(bufferNames.get(Buffer.MODEL_MATRIX_SCENE), 16*4, null, GL_MAP_WRITE_BIT);
     		gl.glNamedBufferStorage(bufferNames.get(Buffer.MODEL_MATRIX_WATER), 16*4, null, GL_MAP_WRITE_BIT);
-    		gl.glNamedBufferStorage(bufferNames.get(Buffer.MODEL_MATRIX_WINDOW), 16*4, null, GL_MAP_WRITE_BIT);
-    		gl.glNamedBufferStorage(bufferNames.get(Buffer.MODEL_MATRIX_WINDOW_2), 16*4, null, GL_MAP_WRITE_BIT);
+    		gl.glNamedBufferStorage(bufferNames.get(Buffer.MODEL_MATRIX_WATER_DOWN), 16*4, null, GL_MAP_WRITE_BIT);
+//    		gl.glNamedBufferStorage(bufferNames.get(Buffer.MODEL_MATRIX_WINDOW_2), 16*4, null, GL_MAP_WRITE_BIT);
 
     		// Create and initialize a named buffer storage for the light properties
             gl.glNamedBufferStorage(bufferNames.get(Buffer.LIGHT_PROPERTIES), 16 * Float.BYTES, lightBuffer, 0);
 
             // Create and initialize a named buffer storage for the material properties
-            gl.glNamedBufferStorage(bufferNames.get(Buffer.MATERIAL_PROPERTIES), 1 * Float.BYTES, materialBuffer, 0);
+            gl.glNamedBufferStorage(bufferNames.get(Buffer.SCENE_MATERIAL_PROPERTIES), 1 * Float.BYTES, sceneMaterialBuffer, 0);
+            gl.glNamedBufferStorage(bufferNames.get(Buffer.WATER_MATERIAL_PROPERTIES), 1 * Float.BYTES, waterMaterialBuffer, 0);
 
             // Create and initialize a named buffer storage for the camera properties
             gl.glNamedBufferStorage(bufferNames.get(Buffer.CAMERA_PROPERTIES), 3 * Float.BYTES, null, GL_MAP_WRITE_BIT);
@@ -962,13 +1031,13 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
              gl.glBufferStorage(GL_ARRAY_BUFFER, waterVertexBuffer.capacity() * Float.BYTES, waterVertexBuffer, 0);
              gl.glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-             gl.glBindBuffer(GL_ARRAY_BUFFER, bufferNames.get(Buffer.WINDOW_V));
-             gl.glBufferStorage(GL_ARRAY_BUFFER, windowVertexBuffer.capacity() * Float.BYTES, windowVertexBuffer, 0);
+             gl.glBindBuffer(GL_ARRAY_BUFFER, bufferNames.get(Buffer.WATER_DOWN_V));
+             gl.glBufferStorage(GL_ARRAY_BUFFER, waterDownVertexBuffer.capacity() * Float.BYTES, waterDownVertexBuffer, 0);
              gl.glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-             gl.glBindBuffer(GL_ARRAY_BUFFER, bufferNames.get(Buffer.WINDOW_V_2));
-             gl.glBufferStorage(GL_ARRAY_BUFFER, windowVertexBuffer2.capacity() * Float.BYTES, windowVertexBuffer2, 0);
-             gl.glBindBuffer(GL_ARRAY_BUFFER, 0);
+//             gl.glBindBuffer(GL_ARRAY_BUFFER, bufferNames.get(Buffer.WINDOW_V_2));
+//             gl.glBufferStorage(GL_ARRAY_BUFFER, windowVertexBuffer2.capacity() * Float.BYTES, windowVertexBuffer2, 0);
+//             gl.glBindBuffer(GL_ARRAY_BUFFER, 0);
 
              //Buffer for Element Data:
              gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferNames.get(Buffer.SCENE_E));
@@ -979,13 +1048,13 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
              gl.glBufferStorage(GL_ELEMENT_ARRAY_BUFFER, waterElementBuffer.capacity() * Short.BYTES, waterElementBuffer, 0);
              gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-             gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferNames.get(Buffer.WINDOW_E));
-             gl.glBufferStorage(GL_ELEMENT_ARRAY_BUFFER, windowElementBuffer.capacity() * Short.BYTES, windowElementBuffer, 0);
+             gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferNames.get(Buffer.WATER_DOWN_E));
+             gl.glBufferStorage(GL_ELEMENT_ARRAY_BUFFER, waterDownElementBuffer.capacity() * Short.BYTES, waterDownElementBuffer, 0);
              gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-             gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferNames.get(Buffer.WINDOW_E_2));
-             gl.glBufferStorage(GL_ELEMENT_ARRAY_BUFFER, windowElementBuffer2.capacity() * Short.BYTES, windowElementBuffer2, 0);
-             gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//             gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferNames.get(Buffer.WINDOW_E_2));
+//             gl.glBufferStorage(GL_ELEMENT_ARRAY_BUFFER, windowElementBuffer2.capacity() * Short.BYTES, windowElementBuffer2, 0);
+//             gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
              //Retrieve the uniform buffer offset alignment minimum
              IntBuffer uniformBufferOffset = GLBuffers.newDirectIntBuffer(1);
@@ -998,8 +1067,8 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
              int materialBlockSize = Math.max(3 * Float.BYTES, uniformBufferOffset.get(0));
              int cameraBlockSize = Math.max(3 * Float.BYTES, uniformBufferOffset.get(0));
              int clipPlaneBlockSize = Math.max(4 * Float.BYTES, uniformBufferOffset.get(0));
-						 int noiseTimeBlockSize = Math.max(Float.BYTES, uniformBufferOffset.get(0));
-			 			 int dropPosBlockSize = Math.max(maxNumDrops * 3 * Float.BYTES, uniformBufferOffset.get(0));
+             int noiseTimeBlockSize = Math.max(Float.BYTES, uniformBufferOffset.get(0));
+			 int dropPosBlockSize = Math.max(maxNumDrops * 3 * Float.BYTES, uniformBufferOffset.get(0));
 
              // Create and initialize a named storage for the global matrices
              gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.GLOBAL_MATRICES));
@@ -1015,13 +1084,13 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
              gl.glBufferStorage(GL_UNIFORM_BUFFER, modelBlockSize, null, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
              gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-             gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.MODEL_MATRIX_WINDOW));
+             gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.MODEL_MATRIX_WATER_DOWN));
              gl.glBufferStorage(GL_UNIFORM_BUFFER, modelBlockSize, null, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
              gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-             gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.MODEL_MATRIX_WINDOW_2));
-             gl.glBufferStorage(GL_UNIFORM_BUFFER, modelBlockSize, null, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-             gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
+//             gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.MODEL_MATRIX_WINDOW_2));
+//             gl.glBufferStorage(GL_UNIFORM_BUFFER, modelBlockSize, null, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+//             gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
              // Create and initialize a named buffer storage for the light properties
              gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.LIGHT_PROPERTIES));
@@ -1029,15 +1098,18 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
              gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
              // Create and initialize a named buffer storage for the camera properties
-             gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.MATERIAL_PROPERTIES));
-             gl.glBufferStorage(GL_UNIFORM_BUFFER, materialBlockSize, materialBuffer, 0);
+             gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.SCENE_MATERIAL_PROPERTIES));
+             gl.glBufferStorage(GL_UNIFORM_BUFFER, materialBlockSize, sceneMaterialBuffer, 0);
+             gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
+             
+             gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.WATER_MATERIAL_PROPERTIES));
+             gl.glBufferStorage(GL_UNIFORM_BUFFER, materialBlockSize, waterMaterialBuffer, 0);
              gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-						 // Create and initialize a named buffer storage for the camera properties
-			 			gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.CAMERA_PROPERTIES));
-			 			gl.glBufferStorage(GL_UNIFORM_BUFFER, cameraBlockSize, null,
-			 					GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-			 			gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
+			// Create and initialize a named buffer storage for the camera properties
+			 gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.CAMERA_PROPERTIES));
+			 gl.glBufferStorage(GL_UNIFORM_BUFFER, cameraBlockSize, null, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+			 gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
              //Create and initialize a named buffer storage for the time property
              gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.TIME));
@@ -1049,70 +1121,70 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
              gl.glBufferStorage(GL_UNIFORM_BUFFER, clipPlaneBlockSize, null, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
              gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-						 gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.NOISE_TIME));
-			 			gl.glBufferStorage(GL_UNIFORM_BUFFER, noiseTimeBlockSize, null,
-			 					GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-			 			gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
+			gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.NOISE_TIME));
+			gl.glBufferStorage(GL_UNIFORM_BUFFER, noiseTimeBlockSize, null, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+			gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-			 			// Create and initialize a named buffer storage for the drop properties:
-			 			gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.DROP_DATA));
-			 			gl.glBufferStorage(GL_UNIFORM_BUFFER, dropPosBlockSize, null,
-			 					GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-			 			gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
+			 // Create and initialize a named buffer storage for the drop properties:
+			 gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.DROP_DATA));
+			 gl.glBufferStorage(GL_UNIFORM_BUFFER, dropPosBlockSize, null, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+			 gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-			 			gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.DROP_COUNT));
-			 			gl.glBufferStorage(GL_UNIFORM_BUFFER, noiseTimeBlockSize, null,
-			 					GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-			 			gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
+			 gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.DROP_COUNT));
+			 gl.glBufferStorage(GL_UNIFORM_BUFFER, noiseTimeBlockSize, null, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+			 gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
     	}
+    	
              globalMatricesPointer = gl.glMapNamedBufferRange(
             		 bufferNames.get(Buffer.GLOBAL_MATRICES),
-            		 0,
-            		 16*4*2,
+            		 0, 16*4*2,
             		 GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
              sceneModelMatrixPointer = gl.glMapNamedBufferRange(
                      bufferNames.get(Buffer.MODEL_MATRIX_SCENE),
-                     0,
-                     16 * 4,
+                     0, 16 * 4,
                      GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
              waterModelMatrixPointer = gl.glMapNamedBufferRange(
             		 bufferNames.get(Buffer.MODEL_MATRIX_WATER),
-            		 0,
-            		 16*4,
+            		 0, 16*4,
             		 GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
-             windowModelMatrixPointer2 = gl.glMapNamedBufferRange(
-            		 bufferNames.get(Buffer.MODEL_MATRIX_WINDOW_2),
-            		 0,
-            		 16*4,
+             waterDownModelMatrixPointer = gl.glMapNamedBufferRange(
+            		 bufferNames.get(Buffer.MODEL_MATRIX_WATER_DOWN),
+            		 0, 16*4,
             		 GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
 
              timePointer = gl.glMapNamedBufferRange(
             		 bufferNames.get(Buffer.TIME),
-            		 0,
-            		 1*Float.BYTES,
+            		 0, 1*Float.BYTES,
             		 GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
              clipPlanePointer = gl.glMapNamedBufferRange(
             		 bufferNames.get(Buffer.CLIP_PLANE),
-            		 0,
-            		 4*Float.BYTES,
+            		 0, 4*Float.BYTES,
             		 GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
-						 noiseTimePointer = gl.glMapNamedBufferRange(bufferNames.get(Buffer.NOISE_TIME), 0, 1 * Float.BYTES,
-						 				GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+			noiseTimePointer = gl.glMapNamedBufferRange(
+					bufferNames.get(Buffer.NOISE_TIME), 
+					0, 1 * Float.BYTES,
+					GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
-				 		 dropBuffer = gl.glMapNamedBufferRange(bufferNames.get(Buffer.DROP_DATA), 0, maxNumDrops * 3 * Float.BYTES,
-						 				GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+			dropBuffer = gl.glMapNamedBufferRange(
+					bufferNames.get(Buffer.DROP_DATA), 
+					0, maxNumDrops * 3 * Float.BYTES,
+					GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
-				 		 dropCountBuffer = gl.glMapNamedBufferRange(bufferNames.get(Buffer.DROP_COUNT), 0, Float.BYTES,
-						 				GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+			dropCountBuffer = gl.glMapNamedBufferRange(
+					bufferNames.get(Buffer.DROP_COUNT), 
+					0, Float.BYTES,
+					GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
-				 		 cameraBuffer = gl.glMapNamedBufferRange(bufferNames.get(Buffer.CAMERA_PROPERTIES), 0, 3*Float.BYTES,
-						 				GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+			cameraBuffer = gl.glMapNamedBufferRange(
+					bufferNames.get(Buffer.CAMERA_PROPERTIES), 
+					0, 3*Float.BYTES,
+					GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     }
 
     private void initVertexArray(GL4 gl) {
@@ -1128,13 +1200,13 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     	gl.glVertexArrayAttribBinding(vertexArrayName.get(VertexArray.WATER), Semantic.Attr.COLOR, Semantic.Stream.A);
     	gl.glVertexArrayAttribBinding(vertexArrayName.get(VertexArray.WATER), Semantic.Attr.NORMAL, Semantic.Stream.A);
 
-    	gl.glVertexArrayAttribBinding(vertexArrayName.get(VertexArray.WINDOW), Semantic.Attr.POSITION, Semantic.Stream.A);
-    	gl.glVertexArrayAttribBinding(vertexArrayName.get(VertexArray.WINDOW), Semantic.Attr.UV, Semantic.Stream.A);
-    	gl.glVertexArrayAttribBinding(vertexArrayName.get(VertexArray.WINDOW), Semantic.Attr.NORMAL, Semantic.Stream.A);
+    	gl.glVertexArrayAttribBinding(vertexArrayName.get(VertexArray.WATER_DOWN), Semantic.Attr.POSITION, Semantic.Stream.A);
+    	gl.glVertexArrayAttribBinding(vertexArrayName.get(VertexArray.WATER_DOWN), Semantic.Attr.COLOR, Semantic.Stream.A);
+    	gl.glVertexArrayAttribBinding(vertexArrayName.get(VertexArray.WATER_DOWN), Semantic.Attr.NORMAL, Semantic.Stream.A);
 
-    	gl.glVertexArrayAttribBinding(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.POSITION, Semantic.Stream.A);
-    	gl.glVertexArrayAttribBinding(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.UV, Semantic.Stream.A);
-    	gl.glVertexArrayAttribBinding(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.NORMAL, Semantic.Stream.A);
+//    	gl.glVertexArrayAttribBinding(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.POSITION, Semantic.Stream.A);
+//    	gl.glVertexArrayAttribBinding(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.UV, Semantic.Stream.A);
+//    	gl.glVertexArrayAttribBinding(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.NORMAL, Semantic.Stream.A);
 
     	 // Set the format of the vertex attributes in the vertex array object
         gl.glVertexArrayAttribFormat(vertexArrayName.get(VertexArray.SCENE), Semantic.Attr.POSITION, 3, GL_FLOAT, false, 0);
@@ -1145,13 +1217,13 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         gl.glVertexArrayAttribFormat(vertexArrayName.get(VertexArray.WATER), Semantic.Attr.COLOR, 3, GL_FLOAT, false, 3 * 4);
         gl.glVertexArrayAttribFormat(vertexArrayName.get(VertexArray.WATER), Semantic.Attr.NORMAL, 3, GL_FLOAT, false, 6 * 4);
 
-        gl.glVertexArrayAttribFormat(vertexArrayName.get(VertexArray.WINDOW), Semantic.Attr.POSITION, 3, GL_FLOAT, false, 0);
-        gl.glVertexArrayAttribFormat(vertexArrayName.get(VertexArray.WINDOW), Semantic.Attr.UV, 2, GL_FLOAT, false, 3 * 4);
-        gl.glVertexArrayAttribFormat(vertexArrayName.get(VertexArray.WINDOW), Semantic.Attr.NORMAL, 3, GL_FLOAT, false, 5 * 4);
+        gl.glVertexArrayAttribFormat(vertexArrayName.get(VertexArray.WATER_DOWN), Semantic.Attr.POSITION, 3, GL_FLOAT, false, 0);
+        gl.glVertexArrayAttribFormat(vertexArrayName.get(VertexArray.WATER_DOWN), Semantic.Attr.COLOR, 3, GL_FLOAT, false, 3 * 4);
+        gl.glVertexArrayAttribFormat(vertexArrayName.get(VertexArray.WATER_DOWN), Semantic.Attr.NORMAL, 3, GL_FLOAT, false, 5 * 4);
 
-        gl.glVertexArrayAttribFormat(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.POSITION, 3, GL_FLOAT, false, 0);
-        gl.glVertexArrayAttribFormat(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.UV, 2, GL_FLOAT, false, 3 * 4);
-        gl.glVertexArrayAttribFormat(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.NORMAL, 3, GL_FLOAT, false, 5 * 4);
+//        gl.glVertexArrayAttribFormat(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.POSITION, 3, GL_FLOAT, false, 0);
+//        gl.glVertexArrayAttribFormat(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.UV, 2, GL_FLOAT, false, 3 * 4);
+//        gl.glVertexArrayAttribFormat(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.NORMAL, 3, GL_FLOAT, false, 5 * 4);
 
         // Enable the vertex attributes in the vertex object
         gl.glEnableVertexArrayAttrib(vertexArrayName.get(VertexArray.SCENE), Semantic.Attr.POSITION);
@@ -1162,25 +1234,25 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         gl.glEnableVertexArrayAttrib(vertexArrayName.get(VertexArray.WATER), Semantic.Attr.COLOR);
         gl.glEnableVertexArrayAttrib(vertexArrayName.get(VertexArray.WATER), Semantic.Attr.NORMAL);
 
-        gl.glEnableVertexArrayAttrib(vertexArrayName.get(VertexArray.WINDOW), Semantic.Attr.POSITION);
-        gl.glEnableVertexArrayAttrib(vertexArrayName.get(VertexArray.WINDOW), Semantic.Attr.UV);
-        gl.glEnableVertexArrayAttrib(vertexArrayName.get(VertexArray.WINDOW), Semantic.Attr.NORMAL);
+        gl.glEnableVertexArrayAttrib(vertexArrayName.get(VertexArray.WATER_DOWN), Semantic.Attr.POSITION);
+        gl.glEnableVertexArrayAttrib(vertexArrayName.get(VertexArray.WATER_DOWN), Semantic.Attr.COLOR);
+        gl.glEnableVertexArrayAttrib(vertexArrayName.get(VertexArray.WATER_DOWN), Semantic.Attr.NORMAL);
 
-        gl.glEnableVertexArrayAttrib(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.POSITION);
-        gl.glEnableVertexArrayAttrib(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.UV);
-        gl.glEnableVertexArrayAttrib(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.NORMAL);
+//        gl.glEnableVertexArrayAttrib(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.POSITION);
+//        gl.glEnableVertexArrayAttrib(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.UV);
+//        gl.glEnableVertexArrayAttrib(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Attr.NORMAL);
 
         // Bind the triangle indices in the vertex array object the triangle indices buffer
         gl.glVertexArrayElementBuffer(vertexArrayName.get(VertexArray.SCENE), bufferNames.get(Buffer.SCENE_E));
         gl.glVertexArrayElementBuffer(vertexArrayName.get(VertexArray.WATER), bufferNames.get(Buffer.WATER_E));
-        gl.glVertexArrayElementBuffer(vertexArrayName.get(VertexArray.WINDOW), bufferNames.get(Buffer.WINDOW_E));
-        gl.glVertexArrayElementBuffer(vertexArrayName.get(VertexArray.WINDOW_2), bufferNames.get(Buffer.WINDOW_E_2));
+        gl.glVertexArrayElementBuffer(vertexArrayName.get(VertexArray.WATER_DOWN), bufferNames.get(Buffer.WATER_DOWN_E));
+//        gl.glVertexArrayElementBuffer(vertexArrayName.get(VertexArray.WINDOW_2), bufferNames.get(Buffer.WINDOW_E_2));
 
         // Bind the vertex array object to the vertex buffer
         gl.glVertexArrayVertexBuffer(vertexArrayName.get(VertexArray.SCENE), Semantic.Stream.A, bufferNames.get(Buffer.SCENE_V), 0, (3 + 3 + 3) * 4);
         gl.glVertexArrayVertexBuffer(vertexArrayName.get(VertexArray.WATER), Semantic.Stream.A, bufferNames.get(Buffer.WATER_V), 0, (3 + 3 + 3) * 4);
-        gl.glVertexArrayVertexBuffer(vertexArrayName.get(VertexArray.WINDOW), Semantic.Stream.A, bufferNames.get(Buffer.WINDOW_V), 0, (3 + 2 + 3) * 4);
-        gl.glVertexArrayVertexBuffer(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Stream.A, bufferNames.get(Buffer.WINDOW_V_2), 0, (3 + 2 + 3) * 4);
+        gl.glVertexArrayVertexBuffer(vertexArrayName.get(VertexArray.WATER_DOWN), Semantic.Stream.A, bufferNames.get(Buffer.WATER_DOWN_V), 0, (3 + 3 + 3) * 4);
+//        gl.glVertexArrayVertexBuffer(vertexArrayName.get(VertexArray.WINDOW_2), Semantic.Stream.A, bufferNames.get(Buffer.WINDOW_V_2), 0, (3 + 2 + 3) * 4);
     }
 
     private void initTestTexture(GL4 gl){
@@ -1374,6 +1446,153 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         // Create the Frame Buffer
         gl.glDrawBuffers(1, drawBuffer2);
+
+        // Make sure the frame buffer has been properly created
+        if (gl.glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            System.out.println("The framebuffer could not be created");
+        
+        // ============================= INITIALISE DOWN REFLECTION FRAME BUFFER ===========================
+
+    	// Bind the frame buffer
+    	gl.glBindFramebuffer(GL_FRAMEBUFFER, frameBufferNames.get(FrameBuffers.REFLECTION_FB_DOWN));
+
+    	// --------- REFLECTION COLOR TEXTURE ----------
+
+    	// Bind the texture that is going to be attached
+    	gl.glBindTexture(GL_TEXTURE_2D, textureNames.get(Textures.REFLECTION_COLOR_T_DOWN));
+
+    	gl.glTexImage2D(
+    			GL_TEXTURE_2D,
+    			0,
+    			GL_RGBA,
+    			reflectionWidth,
+    			reflectionHeight,
+    			0,
+    			GL_RGBA,
+    			GL_UNSIGNED_BYTE,
+    			null
+    	);
+
+    	gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    	gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    	// Unbind the texture
+    	gl.glBindTexture(GL_TEXTURE_2D, 0);
+
+    	// Attatch the texture to the frame buffer
+    	gl.glFramebufferTexture2D(
+    			GL_FRAMEBUFFER,
+    			GL_COLOR_ATTACHMENT0,
+    			GL_TEXTURE_2D,
+    			textureNames.get(Textures.REFLECTION_COLOR_T_DOWN),
+    			0
+    	);
+
+    	// --------- REFLECTION DEPTH BUFFER ----------
+
+    	// Bind the reder buffer that is going to be attached
+    	gl.glBindRenderbuffer(GL_RENDERBUFFER, depthBufferName.get(DepthBuffer.REFLECTION_DEPTH_B_DOWN));
+        gl.glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, reflectionWidth, reflectionHeight);
+
+        // Unbind the render buffer
+        gl.glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    	// Attatch the depth buffer to the frame buffer
+    	gl.glFramebufferRenderbuffer(
+    			GL_FRAMEBUFFER,
+    			GL_DEPTH_ATTACHMENT,
+    			GL_RENDERBUFFER,
+    			depthBufferName.get(DepthBuffer.REFLECTION_DEPTH_B_DOWN)
+    	);
+
+    	// --------------------------------------------
+
+    	// Set the draw buffer (the output from the fragment shader)
+        IntBuffer drawBuffer3 = GLBuffers.newDirectIntBuffer(new int[] { GL_COLOR_ATTACHMENT0 });
+
+        // Create the Frame Buffer
+        gl.glDrawBuffers(1, drawBuffer3);
+
+        // Make sure the frame buffer has been properly created
+        if (gl.glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            System.out.println("The framebuffer could not be created");
+
+        // ============================= INITIALISE REFRACTION FRAME BUFFER ===========================
+
+    	// Bind the frame buffer
+    	gl.glBindFramebuffer(GL_FRAMEBUFFER, frameBufferNames.get(FrameBuffers.REFRACTION_FB_DOWN));
+
+    	// --------- REFRACTION COLOR TEXTURE ----------
+
+    	// Bind the texture that is going to be attached
+    	gl.glBindTexture(GL_TEXTURE_2D, textureNames.get(Textures.REFRACTION_COLOR_T_DOWN));
+
+    	gl.glTexImage2D(
+    			GL_TEXTURE_2D,
+    			0,
+    			GL_RGBA,
+    			refractionWidth,
+    			refractionHeight,
+    			0,
+    			GL_RGBA,
+    			GL_UNSIGNED_BYTE,
+    			null
+    	);
+
+    	gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    	gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    	// Unbind the texture
+    	gl.glBindTexture(GL_TEXTURE_2D, 0);
+
+    	// Attatch the texture to the frame buffer
+    	gl.glFramebufferTexture2D(
+    			GL_FRAMEBUFFER,
+    			GL_COLOR_ATTACHMENT0,
+    			GL_TEXTURE_2D,
+    			textureNames.get(Textures.REFRACTION_COLOR_T_DOWN),
+    			0
+    	);
+
+    	// --------- REFRACTION DEPTH TEXTURE ----------
+
+    	// Bind the texture that is going to be attached
+    	gl.glBindTexture(GL_TEXTURE_2D, textureNames.get(Textures.REFRACTION_DEPTH_T_DOWN));
+
+    	gl.glTexImage2D(
+    			GL_TEXTURE_2D,
+    			0,
+    			GL_DEPTH_COMPONENT32,
+    			refractionWidth,
+    			refractionHeight,
+    			0,
+    			GL_DEPTH_COMPONENT,
+    			GL_FLOAT,
+    			null
+    	);
+
+    	gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    	gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    	// Unbind the texture
+    	gl.glBindTexture(GL_TEXTURE_2D, 0);
+
+    	// Attatch the texture to the frame buffer
+    	gl.glFramebufferTexture2D(
+    			GL_FRAMEBUFFER,
+    			GL_DEPTH_ATTACHMENT,
+    			GL_TEXTURE_2D,
+    			textureNames.get(Textures.REFRACTION_DEPTH_T_DOWN),
+    			0
+    	);
+
+    	// --------------------------------------------
+
+    	// Set the draw buffer (the output from the fragment shader)
+        IntBuffer drawBuffer4 = GLBuffers.newDirectIntBuffer(new int[] { GL_COLOR_ATTACHMENT0 });
+
+        // Create the Frame Buffer
+        gl.glDrawBuffers(1, drawBuffer4);
 
         // Make sure the frame buffer has been properly created
         if (gl.glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
