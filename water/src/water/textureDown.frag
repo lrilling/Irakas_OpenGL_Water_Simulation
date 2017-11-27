@@ -81,26 +81,33 @@ void main()
 
     vec2 reflDistortion = vec2(NN.x, NN.y);
 
-//    float waterDepthY = textDepth - gl_FragCoord.z;
+    vec2 refrDistortion;
+
+//    if (textDepth > 0){
 //
-//    float angleX = atan(toCameraVector.x/toCameraVector.y);
-//    float refrAngleX = asin((n1 * sin(angleX))/n2);
-//    float refrX = tan(refrAngleX) * waterDepthY;
-//    float realX = tan(angleX) * waterDepthY;
+//		float waterDepthY = textDepth - gl_FragCoord.z;
+//		float angleX = atan(toCameraVector.x/toCameraVector.y);
+//		float refrAngleX = asin((n1 * sin(angleX))/n2);
+//		float refrX = tan(refrAngleX) * waterDepthY;
+//		float realX = tan(angleX) * waterDepthY;
 //
-//    float refrOffsetX = refrX - realX;
+//		float refrOffsetX = refrX - realX;
 //
-//    float angleY = atan(toCameraVector.z/toCameraVector.y);
-//    float refrAngleY = asin((n1 * sin(angleY))/n2);
-//    float refrY = tan(refrAngleY) * waterDepthY;
-//    float realY = tan(angleY) * waterDepthY;
+//		float angleY = atan(toCameraVector.z/toCameraVector.y);
+//		float refrAngleY = asin((n1 * sin(angleY))/n2);
+//		float refrY = tan(refrAngleY) * waterDepthY;
+//		float realY = tan(angleY) * waterDepthY;
 //
-//    float refrOffsetY = refrY - realY;
+//		float refrOffsetY = refrY - realY;
 //
-//    vec2 refrDistortion = vec2(refrOffsetX + NN.x, refrOffsetY + NN.y);
+//		refrDistortion = vec2(refrOffsetX + NN.x, refrOffsetY + NN.y);
+//    }
+//    else{
+    	refrDistortion = vec2(NN.x, NN.y);
+//    }
 
     vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords + reflDistortion).rgba;
-    vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords + reflDistortion).rgba;
+    vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords + refrDistortion).rgba;
 
     //Set the vector pointing to the camera
     vec3 viewVector = normalize(toCameraVector);

@@ -325,7 +325,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         waterProgram = new Program(gl, "water", "water", "texture");
         
-        waterDownProgram = new Program(gl, "water", "water", "textureDown");
+        waterDownProgram = new Program(gl, "water", "waterDown", "textureDown");
 
 		//Set up the mousePicker
 		mousePicker = new MousePicker(null, null, window.getWidth(), window.getHeight());
