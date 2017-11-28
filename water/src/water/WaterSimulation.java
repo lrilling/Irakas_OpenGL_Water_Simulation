@@ -822,11 +822,11 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		System.out.println("Mouse clicked!");
+		System.out.println("Mouse clicked! X: " + e.getX() + " Y: " + e.getY());
 		float[] mouseRay = mousePicker.getMouseRay(e.getX(), e.getY());
 
 		float[] dropXZ = computeIntersectionMouseRay(mouseRay);
-
+		System.out.println("dropX: " + dropXZ[0] + " dropZ: " + dropXZ[1]);
 		if(FloatUtil.abs(dropXZ[0]) <= 7f && FloatUtil.abs(dropXZ[1]) <= 7f)
 			addDropAt(dropXZ[0], dropXZ[1]);
 	}
