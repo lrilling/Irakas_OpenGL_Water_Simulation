@@ -822,11 +822,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 			}
 		}
 		
-		System.out.println("Before: " + Arrays.toString(movement));
-		
 		movement = FloatUtil.multMatrixVec(roation, movement, new float[4]);
-		
-		System.out.println("After: " + Arrays.toString(movement));
 		
 		cameraProperties[0] = cameraProperties[0] + movement[0];
 		cameraProperties[1] = cameraProperties[1] + movement[1];
