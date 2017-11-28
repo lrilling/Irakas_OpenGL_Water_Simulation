@@ -252,7 +252,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
     // Application setup function
     private void setup() {
-
         // Get a OpenGL 4.x profile (x >= 0)
         glProfile = GLProfile.get(GLProfile.GL4);
 
@@ -299,9 +298,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     // GLEventListener.init implementation
     @Override
     public void init(GLAutoDrawable drawable) {
-
-    	System.out.println("init!!");
-
         // Get OpenGL 4 reference
         GL4 gl = drawable.getGL().getGL4();
 
@@ -340,7 +336,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 				for (int i = 0; i < dropStartTime.length; i++) {
 					dropStartTime[i] = 0;
 				}
-
+		System.out.println("init done!");
     }
 
     // GLEventListener.display implementation
@@ -786,8 +782,8 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 					//System.out.println("Tmp: " + tmp);
 					if (tmp != maxNumDrops) {
 						numDrops++;
-						float random_x = (float) Math.random();
-						float random_z = (float) Math.random();
+						float random_x = 7f * (float) Math.random();
+						float random_z = 7f * (float) Math.random();
 						dropStartTime[tmp] = System.currentTimeMillis();
 						dropPositions[tmp][0] = random_x;
 						dropPositions[tmp][1] = random_z;
@@ -924,18 +920,13 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
     public void parseData() {
     	try {
-			ObjModelParser parser = new ObjModelParser("models/tree3");
+			ObjModelParser parser = new ObjModelParser("models/tree3_new");
 
 			ParserModel sceneModel = new ParserModel();
 			sceneModel = parser.parseModel();
 
 			sceneVertexData = sceneModel.getVertexData();
 			sceneElementData = sceneModel.getElementData();
-
-			System.out.println("VertexData: " + Arrays.toString(sceneVertexData));
-			System.out.println("Siz: " + sceneVertexData.length);
-
-			System.out.println("ElementData: " + Arrays.toString(sceneElementData));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -958,9 +949,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     		waterDownVertexData = subdivideMesh(waterDownVertexData, waterDownElementData);
     		waterDownElementData = createMeshElementData(waterDownVertexData);
     	}
-
-    	System.out.println("VertexDataWater: " + Arrays.toString(waterVertexData));
-    	System.out.println("ElementDataWater: " + Arrays.toString(waterElementData));
 
     	FloatBuffer sceneVertexBuffer = GLBuffers.newDirectFloatBuffer(sceneVertexData);
     	ShortBuffer sceneElementBuffer = GLBuffers.newDirectShortBuffer(sceneElementData);
@@ -1645,7 +1633,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 		int numOfVertices = 3; //number of vertices per face before subdivision
 		int numOfFaces = elementData.length/numOfVertices;	//number of faces on the subdivided icosahedron
 
-		System.out.println("numOfFaces: " + numOfFaces);
 		List<Float> newVertices = new ArrayList<Float>();
 
 		for(int i=0; i<numOfFaces; i++) {
