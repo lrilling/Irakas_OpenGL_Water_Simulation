@@ -143,10 +143,10 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     };
     
     private float[] waterDownVertexData = {
-          7f, -0.3f,  7f,		0f, 0f ,1f,		0f, -1f, 0f,
-         -7f, -0.3f,  7f,		0f, 0f ,1f,		0f, -1f, 0f,
-         -7f, -0.3f, -7f,		0f, 0f ,1f,		0f, -1f, 0f,
-          7f, -0.3f, -7f,		0f, 0f ,1f, 	0f, -1f, 0f
+          7f, -0.04f,  7f,		0f, 0f ,1f,		0f, -1f, 0f,
+         -7f, -0.04f,  7f,		0f, 0f ,1f,		0f, -1f, 0f,
+         -7f, -0.04f, -7f,		0f, 0f ,1f,		0f, -1f, 0f,
+          7f, -0.04f, -7f,		0f, 0f ,1f, 	0f, -1f, 0f
     };
 
     // Window triangles
@@ -595,9 +595,10 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     	    float[] translate = FloatUtil.makeTranslation(new float[16], false, 0f, -0.2f, 0f); 	
     	    waterModelMatrixPointer.asFloatBuffer().put(FloatUtil.multMatrix(translate, scale));
     	    
+    	    //translate = FloatUtil.makeTranslation(new float[16], false, 0f, -0.24f, 0f);
     	    float[] rotateX = FloatUtil.makeRotationEuler(new float[16], 0, FloatUtil.PI, 0, 0);
     	    float[] waterDown = FloatUtil.multMatrix(rotateX, scale);
-    	    waterDownModelMatrixPointer.asFloatBuffer().put(FloatUtil.multMatrix(translate, waterDown));
+    	    waterDownModelMatrixPointer.asFloatBuffer().put(FloatUtil.multMatrix(translate, scale));
 
 //        	System.out.println("Render time " + clipPlane + ": --> ClipPlane: " + clipPlanePointer.asFloatBuffer().get(0) + " " + clipPlanePointer.asFloatBuffer().get(1) + " " + clipPlanePointer.asFloatBuffer().get(2) + " " + clipPlanePointer.asFloatBuffer().get(3));
 
@@ -699,6 +700,12 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 		// add the pressed key to the set
 		pressed.add(e.getKeyCode());
 
+		float[] rotateY = FloatUtil.makeRotationEuler(new float[16], 0, 0f, -angleY, 0f);
+		float[] rotateX = FloatUtil.makeRotationEuler(new float[16], 0, -angleX, 0, 0f);
+		
+		float[] roation = FloatUtil.multMatrix(rotateY, rotateX);
+		
+		float[] movement = {0f, 0f, 0f, 1f};
 		if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
 			shift = true;
 		}
@@ -711,19 +718,25 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 					// change the camera properties if, shift and an arrow key are pressed (effects
 					// the global matrix):
 					if (tmp == KeyEvent.VK_UP) {
-						cameraProperties[2] = cameraProperties[2] - 0.5f;
+						movement[2] = -1f;
+						//cameraProperties[2] = cameraProperties[2] - 0.5f;
 					} else if (tmp == KeyEvent.VK_DOWN) {
-						cameraProperties[2] = cameraProperties[2] + 0.5f;
+						movement[2] = 1f;
+						//cameraProperties[2] = cameraProperties[2] + 0.5f;
 					} else if (tmp == KeyEvent.VK_RIGHT) {
-						cameraProperties[0] = cameraProperties[0] + 0.5f;
+						movement[0] = -1f;
+						//cameraProperties[0] = cameraProperties[0] + 0.5f;
 					} else if (tmp == KeyEvent.VK_LEFT) {
-						cameraProperties[0] = cameraProperties[0] - 0.5f;
+						movement[1] = 1f;
+						//cameraProperties[0] = cameraProperties[0] - 0.5f;
 					}
 					else if (tmp == KeyEvent.VK_W) {
-						cameraProperties[2] = cameraProperties[2] - 0.5f;
+						movement[2] = -1f;
+						//cameraProperties[2] = cameraProperties[2] - 0.5f;
 					}
 					else if (tmp == KeyEvent.VK_S) {
-						cameraProperties[2] = cameraProperties[2] + 0.5f;
+						movement[2] = 1f;
+						//cameraProperties[2] = cameraProperties[2] + 0.5f;
 					}
 				}
 
@@ -758,16 +771,20 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 				}).start();
 			}
 			if(e.getKeyCode() == KeyEvent.VK_W) {
-				cameraProperties[1] = cameraProperties[1] + 0.5f;
+				movement[1] = 1f;
+				//cameraProperties[1] = cameraProperties[1] + 0.5f;
 			}
 			else if(e.getKeyCode() == KeyEvent.VK_S) {
-				cameraProperties[1] = cameraProperties[1] - 0.5f;
+				movement[1] = -1f;
+				//cameraProperties[1] = cameraProperties[1] - 0.5f;
 			}
 			else if(e.getKeyCode() == KeyEvent.VK_A) {
-				cameraProperties[0] = cameraProperties[0] - 0.5f;
+				movement[0] = -1f;
+				//cameraProperties[0] = cameraProperties[0] - 0.5f;
 			}
 			else if(e.getKeyCode() == KeyEvent.VK_D) {
-				cameraProperties[0] = cameraProperties[0] + 0.5f;
+				movement[0] = 1f;
+				//cameraProperties[0] = cameraProperties[0] + 0.5f;
 			}
 			if (e.getKeyCode() == KeyEvent.VK_N) {
 				new Thread(() -> {
@@ -804,7 +821,16 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 				}).start();
 			}
 		}
-
+		
+		System.out.println("Before: " + Arrays.toString(movement));
+		
+		movement = FloatUtil.multMatrixVec(roation, movement, new float[4]);
+		
+		System.out.println("After: " + Arrays.toString(movement));
+		
+		cameraProperties[0] = cameraProperties[0] + movement[0];
+		cameraProperties[1] = cameraProperties[1] + movement[1];
+		cameraProperties[2] = cameraProperties[2] + movement[2];
 	}
 
 	// KeyListener.keyPressed implementation
@@ -1728,7 +1754,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 		for(int i = 0; i < newVertices.size(); i++) {
 			outVertices[i] = newVertices.get(i);
 		}
-
 		return outVertices;
 	}
 
