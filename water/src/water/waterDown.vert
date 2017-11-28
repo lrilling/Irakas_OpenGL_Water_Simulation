@@ -130,29 +130,6 @@ float addDrops(float x, float z){
 				refl_r = r = 3*sqrt(pow(x - 0,2) + pow(z - refl,2))/(widthOfWater);
 
 				tmp = tmp + 0.7 * dropFunction(refl_r, tmp_t);
-
-
-
-				//get reflections:
-				/*
-				float refl_x[4];
-				float refl_z[4];
-
-				refl_x[0] = 2*widthOfWater - tmp_x;
-				refl_x[1] = -2*widthOfWater - tmp_x;
-				refl_x[2] = 0; refl_x[3] = 0;
-
-				refl_z[0] = 0; refl_z[1] = 0;
-				refl_z[2] = 2*widthOfWater - tmp_z;
-				refl_z[3] = 2*widthOfWater - tmp_z;
-
-				float refl_r;
-				for(int j = 0; j < 4; i++){
-					refl_r = 3*sqrt(pow(x - refl_x[i],2) + pow(z - refl_z[i] ,2))/(widthOfWater);
-
-					tmp = tmp + 4*(widthOfWater)*(sin((refl_r/constant_2)-0.6*tmp_t) * gauss(10*((refl_r-0.3*tmp_t)/(0.1*tmp_t)), height - ((height/(height-1))-1.5*tmp_t)));
-				}
-				*/
 			}
 			else{
 				tmp = position.y;
