@@ -137,15 +137,15 @@ float addDrops(float x, float z){
 
 		}
 
-		tmp = tmp + 0.04*abs(pnoise(vec3(2*x-0.05*nt, position.y, 2*z+0.05*nt), vec3(5.0, 5.0, 5.0)));
-		return -tmp;
+		tmp = tmp + 0.04*abs(pnoise(vec3(2*x+0.05*nt, position.y, 2*z+0.05*nt), vec3(-5.0, -5.0, -5.0)));
+		return tmp;
 }
 
 
 
 void main() {
 	float tmp_y = addDrops(position.x, position.z);
-	positionSine = vec3(position.x, tmp_y, position.z);
+	positionSine = vec3(position.x, position_y + tmp_y, position.z);
 
 	float dx = addDrops(position.x - 0.05, position.z) - tmp_y;
 	float dz = addDrops(position.x, position.z - 0.05) - tmp_y;

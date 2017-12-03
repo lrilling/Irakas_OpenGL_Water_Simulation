@@ -104,7 +104,7 @@ void main()
 
     float refrOffsetZ = newZ - realZ;
 
-    vec2 refrDistortion = vec2(refrOffsetX, refrOffsetZ);
+    vec2 refrDistortion = vec2(refrOffsetX + NN.x, refrOffsetZ + NN.y);
 
     vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords + reflDistortion).rgba;
     vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords + refrDistortion).rgba;
