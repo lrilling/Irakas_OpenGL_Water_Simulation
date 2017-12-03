@@ -85,19 +85,26 @@ void main()
 
     float angleX = atan(toCameraVector.x/toCameraVector.y);
     float refrAngleX = asin((n1 * sin(angleX))/n2);
-    float refrX = tan(refrAngleX) * waterDepthY;
+//    float realY = waterDepth * cos(angleX);
+    float newX = tan(refrAngleX) * waterDepthY;
     float realX = tan(angleX) * waterDepthY;
+//    float realX = waterDepth * sin(angleX);
+//    float newX = realY * tan(refrAngleX);
 
-    float refrOffsetX = refrX - realX;
 
-    float angleY = atan(toCameraVector.z/toCameraVector.y);
-    float refrAngleY = asin((n1 * sin(angleY))/n2);
-    float refrY = tan(refrAngleY) * waterDepthY;
-    float realY = tan(angleY) * waterDepthY;
+    float refrOffsetX = newX - realX;
 
-    float refrOffsetY = refrY - realY;
+    float angleZ = atan(toCameraVector.z/toCameraVector.y);
+    float refrAngleZ = asin((n1 * sin(angleZ))/n2);
+//    realY = waterDepth * cos(angleZ);
+    float newZ = tan(refrAngleZ) * waterDepthY;
+    float realZ = tan(angleZ) * waterDepthY;
+//    float realZ = waterDepth * sin(angleZ);
+//    float newZ = realY * tan(refrAngleZ);
 
-    vec2 refrDistortion = vec2(refrOffsetX + NN.x, refrOffsetY + NN.y);
+    float refrOffsetZ = newZ - realZ;
+
+    vec2 refrDistortion = vec2(refrOffsetX, refrOffsetZ);
 
     vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords + reflDistortion).rgba;
     vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords + refrDistortion).rgba;

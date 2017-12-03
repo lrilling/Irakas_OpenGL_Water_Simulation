@@ -137,20 +137,20 @@ float addDrops(float x, float z){
 
 		}
 
-		//tmp = tmp + 0.04*abs(pnoise(vec3(2*x-0.05*nt, position.y, 2*z+0.05*nt), vec3(5.0, 5.0, 5.0)));
-		return tmp;
+		tmp = tmp + 0.04*abs(pnoise(vec3(2*x-0.05*nt, position.y, 2*z+0.05*nt), vec3(5.0, 5.0, 5.0)));
+		return -tmp;
 }
 
 
 
 void main() {
-	float tmp_y = -addDrops(position.x, position.z);
-	positionSine = vec3(position.x, tmp_y, -position.z);
+	float tmp_y = addDrops(position.x, position.z);
+	positionSine = vec3(position.x, tmp_y, position.z);
 
-	float dx = -addDrops(position.x - 0.05, position.z) - tmp_y;
-	float dz = -addDrops(position.x, position.z - 0.05) - tmp_y;
+	float dx = addDrops(position.x - 0.05, position.z) - tmp_y;
+	float dz = addDrops(position.x, position.z - 0.05) - tmp_y;
 
-	vec3 computedNormal = vec3(dx, 1, dz);
+	vec3 computedNormal = vec3(dx, -1, dz);
 
 	clipSpace = normalize(proj * (view * (model * vec4(positionSine,  1))));
 

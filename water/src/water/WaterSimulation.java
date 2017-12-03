@@ -200,7 +200,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     
     private float[] waterMaterialProperties = {
         // Shininess
-        2.0f
+        1.0f
     };
 
     // Camera properties
@@ -595,9 +595,9 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     	    float[] translate = FloatUtil.makeTranslation(new float[16], false, 0f, -0.2f, 0f); 	
     	    waterModelMatrixPointer.asFloatBuffer().put(FloatUtil.multMatrix(translate, scale));
     	    
-    	    float[] rotateX = FloatUtil.makeRotationEuler(new float[16], 0, FloatUtil.PI, 0, 0);
-    	    float[] waterDown = FloatUtil.multMatrix(rotateX, scale);
-    	    waterDownModelMatrixPointer.asFloatBuffer().put(FloatUtil.multMatrix(translate, waterDown));
+//    	    float[] rotateX = FloatUtil.makeRotationEuler(new float[16], 0, FloatUtil.PI, 0, 0);
+//    	    float[] waterDown = FloatUtil.multMatrix(rotateX, scale);
+    	    waterDownModelMatrixPointer.asFloatBuffer().put(FloatUtil.multMatrix(translate, scale));
 
 //        	System.out.println("Render time " + clipPlane + ": --> ClipPlane: " + clipPlanePointer.asFloatBuffer().get(0) + " " + clipPlanePointer.asFloatBuffer().get(1) + " " + clipPlanePointer.asFloatBuffer().get(2) + " " + clipPlanePointer.asFloatBuffer().get(3));
 
