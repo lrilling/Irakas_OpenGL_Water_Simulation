@@ -1,57 +1,52 @@
 
 #version 450
 
-#include classicNoise3D.glsl
+#include waterFunctions.glsl
+#include semantic.glsl
 
 #define EULER 	2.7182818284590452353602874
 #define PI  	3.1415926535897932384626433
 
 // Incoming vertex position, Model Space.
-layout (location = 0) in vec3 position;
+layout (location = POSITION) in vec3 position;
 
 // Incoming texture coordinate
-layout (location = 1) in vec3 color;
+layout (location = COLOR) in vec3 color;
 
 // Incoming normal
-layout (location = 2) in vec3 normal;
+layout (location = NORMAL) in vec3 normal;
 
 // Projection and view matrices.
-layout (binding = 1) uniform Transform0
+layout (binding = TRANSFORM0) uniform Transform0
 {
     mat4 proj;
     mat4 view;
 };
 
 // model matrix
-layout (binding = 2) uniform Transform1
+layout (binding = TRANSFORM1) uniform Transform1
 {
     mat4 model;
 };
 
-//time
-layout (binding = 3) uniform Time
-{
-	float t;
-};
-
-layout (binding = 6) uniform Camera
+layout (binding = CAMERA) uniform Camera
 {
 	vec3 cameraPos;
 };
 
 //noise time
-layout (binding = 8) uniform Noise_Time{
+layout (binding = NOISE_TIME) uniform Noise_Time{
 	float nt;
 };
 
 //dropData:
-layout (binding = 9) uniform Drop_Data
+layout (binding = DROP_DATA) uniform Drop_Data
 {
 	float dropData[300];
 };
 
 //dropCount
-layout (binding = 10) uniform Drop_Count
+layout (binding = DROP_COUNT) uniform Drop_Count
 {
 	float dropCount;
 };
@@ -70,25 +65,7 @@ vec3 positionSine;
 
 float r;
 
-float widthOfWater = 7;
 
-float constant_1 = 20;
-float constant_2 = 0.1;
-
-float height = 0.02;
-
-float gauss(float x, float y){
-	float result;
-	result = 1/(2*PI*constant_1);
-	result = result * pow(EULER, -(x*x + y*y) / (2*constant_1*constant_1));
-
-	return result;
-}
-
-float dropFunction(float r, float t){
-	t = 1.5* t;
-	return 4*(widthOfWater)*(sin((r/constant_2)-0.6*t) * gauss(10*((r-0.1*t)/(0.05*t)), height - ((height/(height-1))-1.5*t)));
-}
 
 
 float addDrops(float x, float z){
@@ -137,7 +114,7 @@ float addDrops(float x, float z){
 
 		}
 
-		tmp = tmp + 0.04*abs(pnoise(vec3(2*x+0.05*nt, position.y, 2*z+0.05*nt), vec3(5.0, 5.0, 5.0)));
+		tmp = tmp + noiseFunction(x, tmp, z,nt);
 		return tmp;
 }
 
@@ -150,7 +127,7 @@ void main() {
 	float dx = addDrops(position.x - 0.05, position.z) - tmp_y;
 	float dz = addDrops(position.x, position.z - 0.05) - tmp_y;
 
-	vec3 computedNormal = vec3(dx, 1, dz);
+	vec3 computedNormal = vec3(-dx, 1, -dz);
 
 	clipSpace = normalize(proj * (view * (model * vec4(positionSine,  1))));
 

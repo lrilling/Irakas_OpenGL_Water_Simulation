@@ -1,5 +1,7 @@
 #version 450
 
+#include semantic.glsl
+
 // Incoming interpolated UV coordinates.
 layout (location = 0) in Block
 {
@@ -10,7 +12,7 @@ layout (location = 0) in Block
     vec3 toCameraVector;
 };
 
-layout (std140, binding = 4) uniform Light0
+layout (std140, binding = LIGHT0) uniform Light0
 {
     vec3 lightPos;
     vec3 lightAmbient;
@@ -18,12 +20,12 @@ layout (std140, binding = 4) uniform Light0
     vec3 lightSpecular;
 };
 
-layout (std140, binding = 5) uniform Material
+layout (std140, binding = MATERIAL) uniform Material
 {
     float shininess;
 };
 
-layout (std140, binding = 6) uniform Camera
+layout (std140, binding = CAMERA) uniform Camera
 {
     vec3 cameraPos;
 };
@@ -99,8 +101,14 @@ void main()
 
     vec2 refrDistortion = vec2(refrOffsetX + NN.x, refrOffsetY + NN.y);
 
-    vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords + reflDistortion).rgba;
-    vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords + refrDistortion).rgba;
+    reflectionTextCoords += reflDistortion;
+    reflectionTextCoords = clamp(reflectionTextCoords, 0.001, 0.999);
+
+    refractionTextCoords += refrDistortion;
+//    refractionTextCoords = clamp(refractionTextCoords, 0.001, 0.999);
+
+    vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords).rgba;
+    vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords).rgba;
 
     //Set the vector pointing to the camera
     vec3 viewVector = normalize(toCameraVector);

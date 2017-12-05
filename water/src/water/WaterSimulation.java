@@ -143,10 +143,10 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     };
     
     private float[] waterDownVertexData = {
-          7f, -0.04f,  7f,		0f, 0f ,1f,		0f, -1f, 0f,
-         -7f, -0.04f,  7f,		0f, 0f ,1f,		0f, -1f, 0f,
-         -7f, -0.04f, -7f,		0f, 0f ,1f,		0f, -1f, 0f,
-          7f, -0.04f, -7f,		0f, 0f ,1f, 	0f, -1f, 0f
+          7f, -0.0001f,  7f,		0f, 0f ,1f,		0f, -1f, 0f,
+         -7f, -0.0001f,  7f,		0f, 0f ,1f,		0f, -1f, 0f,
+         -7f, -0.0001f, -7f,		0f, 0f ,1f,		0f, -1f, 0f,
+          7f, -0.0001f, -7f,		0f, 0f ,1f, 	0f, -1f, 0f
     };
 
     // Window triangles
@@ -155,7 +155,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     		2, 3, 0
     };
 
-	private int maxNumDrops = 100;
+	private int maxNumDrops = 40;
 	private int numDrops = 0;
 	private float[][] dropPositions = new float[maxNumDrops][2];
 	private long[] dropStartTime = new long[maxNumDrops];
@@ -173,9 +173,10 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
 	// Create buffers for clear values
 	private FloatBuffer clearColor = GLBuffers.newDirectFloatBuffer(new float[] { 0.008f, 0.616f, 0.825f, 0 });
+	//private FloatBuffer clearColor = GLBuffers.newDirectFloatBuffer(new float[] { 0f, 0f, 0f, 0 });
 	private FloatBuffer clearDepth = GLBuffers.newDirectFloatBuffer(new float[] { 1 });
 
-	private ByteBuffer globalMatricesPointer, sceneModelMatrixPointer, waterModelMatrixPointer, waterDownModelMatrixPointer, timePointer, noiseTimePointer, clipPlanePointer;
+	private ByteBuffer globalMatricesPointer, sceneModelMatrixPointer, waterModelMatrixPointer, waterDownModelMatrixPointer, noiseTimePointer, clipPlanePointer;
 
 	// Create a direct buffer for dropPositions and dropStartTime:
 	private ByteBuffer dropBuffer, dropCountBuffer;
@@ -461,7 +462,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
 	    int depthLoc = gl.glGetUniformLocation(waterProgram.name, "depthMap");
 	    gl.glUniform1i(depthLoc, 2);
-
+	    
 	    gl.glActiveTexture(GL_TEXTURE0 + 0);
 	    gl.glBindTexture(GL_TEXTURE_2D, textureNames.get(Textures.REFLECTION_COLOR_T));
 
@@ -475,8 +476,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	    gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
 
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM1, bufferNames.get(Buffer.MODEL_MATRIX_WATER));
-
-	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TIME, bufferNames.get(Buffer.TIME));
 
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.NOISE_TIME, bufferNames.get(Buffer.NOISE_TIME));
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.DROP_COUNT, bufferNames.get(Buffer.DROP_COUNT));
@@ -557,31 +556,28 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 					float diff = (float) (now - start) / 100;
 					float noiseDiff = (float) (now - noise_start) / 100;
 
+					/*
 					if (drop) {
 						timePointer.asFloatBuffer().put(diff);
 					} else {
 						timePointer.asFloatBuffer().put(0);
 					}
-
+					*/
 					noiseTimePointer.asFloatBuffer().put(noiseDiff);
 
 					ArrayList<Float> dropList = new ArrayList<Float>();
-
 					for (int i = 0; i < dropStartTime.length; i++) {
-						//System.out.println("Candidate: " + i + " Time: " + dropStartTime[i]);
 						if (dropStartTime[i] != 0f) {
-							//System.out.println("Found Drop: " + i + " Time: " + ((now-dropStartTime[i])/100));
-							dropList.add((float) (now - dropStartTime[i]) / 100);
+							dropList.add((float) (now - dropStartTime[i]) / 1000);
 							dropList.add(dropPositions[i][0]);
 							dropList.add(dropPositions[i][1]);
 						}
 					}
-
+					
 					for(int i = 0; i < dropList.size(); i++) {
 						dropData[i] = dropList.get(i);
 					}
 
-					//System.out.println("DropData: " + Arrays.toString(dropData));
 					dropBuffer.asFloatBuffer().put(dropData);
 					dropCountBuffer.asFloatBuffer().put(numDrops);
 
@@ -960,7 +956,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     }
 
     public void initBuffers(GL4 gl) {
-    	int detail = 5;
+    	int detail = 6;
 
     	for(int i = 0; i<detail; i++) {
     		waterVertexData = subdivideMesh(waterVertexData, waterElementData);
@@ -1029,7 +1025,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
             gl.glNamedBufferStorage(bufferNames.get(Buffer.CAMERA_PROPERTIES), 3 * Float.BYTES, null, GL_MAP_WRITE_BIT);
 
 						// Create and initialize a named buffer storage for the time property
-						gl.glNamedBufferStorage(bufferNames.get(Buffer.TIME), 1 * Float.BYTES, null, GL_MAP_WRITE_BIT);
 						gl.glNamedBufferStorage(bufferNames.get(Buffer.NOISE_TIME), 1 * Float.BYTES, null, GL_MAP_WRITE_BIT);
 
 						gl.glNamedBufferStorage(bufferNames.get(Buffer.DROP_DATA), maxNumDrops * 2 * Float.BYTES, null,
@@ -1037,9 +1032,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
 						gl.glNamedBufferStorage(bufferNames.get(Buffer.DROP_COUNT), 1 * Float.BYTES, null, GL_MAP_WRITE_BIT);
 
-
-            //Create and initialize a named buffer storage for the time property
-            gl.glNamedBufferStorage(bufferNames.get(Buffer.TIME), 1 * Float.BYTES, null, GL_MAP_WRITE_BIT);
 
           //Create and initialize a named buffer storage for the time property
             gl.glNamedBufferStorage(bufferNames.get(Buffer.CLIP_PLANE), 4 * Float.BYTES, null, GL_MAP_WRITE_BIT);
@@ -1136,10 +1128,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 			 gl.glBufferStorage(GL_UNIFORM_BUFFER, cameraBlockSize, null, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
 			 gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-             //Create and initialize a named buffer storage for the time property
-             gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.TIME));
-             gl.glBufferStorage(GL_UNIFORM_BUFFER, modelBlockSize, null, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-             gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
              //Create and initialize a named buffer storage for the clipping plane property
              gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferNames.get(Buffer.CLIP_PLANE));
@@ -1178,12 +1166,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
              waterDownModelMatrixPointer = gl.glMapNamedBufferRange(
             		 bufferNames.get(Buffer.MODEL_MATRIX_WATER_DOWN),
             		 0, 16*4,
-            		 GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-
-
-             timePointer = gl.glMapNamedBufferRange(
-            		 bufferNames.get(Buffer.TIME),
-            		 0, 1*Float.BYTES,
             		 GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
              clipPlanePointer = gl.glMapNamedBufferRange(
@@ -1649,16 +1631,16 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 		}
 
 	public float[] subdivideMesh(float[] vertices, short[] elementData) {
-		//float[] newVertices = new float[vertices.length*4];
 
 		int numOfValues = 9; //number of values per vertex (3 coordinates, 3 texture, 3 normal)
-		int numOfVertices = 3; //number of vertices per face before subdivision
-		int numOfFaces = elementData.length/numOfVertices;	//number of faces on the subdivided icosahedron
+		int numOfVertices = 3; //number of vertices per face
+		int numOfFaces = elementData.length/numOfVertices;	//number of faces to subdivide
 
 		List<Float> newVertices = new ArrayList<Float>();
 
 		for(int i=0; i<numOfFaces; i++) {
-
+			
+			//get the indices of the vertices out of the element data
 			int[] pos = {
 					elementData[i*numOfVertices]*numOfValues,
 					elementData[i*numOfVertices +1] * numOfValues,
@@ -1669,6 +1651,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 			float[] y = new float[9];
 			float[] z = new float[9];
 
+			//using a 2d array to get the vertex data
 			float[][] corners = new float[3][9];
 
 			for(int j = 0; j<numOfVertices; j++) {
@@ -1676,21 +1659,24 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 					corners[j][k] = vertices[pos[j] + k];
 				}
 			}
-
+			
+			//assign the vertex arrays to the corresponding array:
 			x = corners[0];
 			y = corners[1];
 			z = corners[2];
 
+			//get the coordinates of the vertices, needed to get the median of the edges:
 			float[] x_coords = {x[0], x[1], x[2]};
 			float[] y_coords = {y[0], y[1], y[2]};
 			float[] z_coords = {z[0], z[1], z[2]};
 
+			//find the medians of the face edges:
 			float[] a_coords = getMiddle(x_coords, y_coords);
 			float[] b_coords = getMiddle(y_coords, z_coords);
 			float[] c_coords = getMiddle(z_coords, x_coords);
 
 
-			float[] normal_tmp = computeNormal(x_coords, a_coords, c_coords);
+			float []normal_tmp = {0.0f, 1.0f, 0.0f};
 			{
 				float[] face = {
 						x_coords[0], x_coords[1], x_coords[2], 0f, 0f, 1f, normal_tmp[0], normal_tmp[1], normal_tmp[2],
@@ -1703,7 +1689,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 				}
 			}
 
-			normal_tmp = computeNormal(a_coords, y_coords, b_coords);
 			{
 				float[] face = {
 						a_coords[0], a_coords[1], a_coords[2], 0f, 0f, 1f, normal_tmp[0], normal_tmp[1], normal_tmp[2],
@@ -1716,7 +1701,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 				}
 			}
 
-			normal_tmp = computeNormal(a_coords, b_coords, c_coords);
 
 			{
 				float[] face = {
@@ -1729,8 +1713,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 					newVertices.add(face[j]);
 				}
 			}
-
-			normal_tmp = computeNormal(c_coords, b_coords, z_coords);
 
 			{
 				float[] face = {
@@ -1745,6 +1727,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 			}
 		}
 
+		//create fixed size array out of ArrayList:
 		float[] outVertices = new float[newVertices.size()];
 
 		for(int i = 0; i < newVertices.size(); i++) {
@@ -1756,31 +1739,13 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	private short[] createMeshElementData(float[] vertexData) {
 		short[] out = new short[vertexData.length / (3 + 3 + 3)];
 
-		//since all the vertices are already in the right order the element data just needs to count from 0 to the number of vertices:
+		//since all the vertices are already in the right order 
+		//the element data just needs to count from 0 to the number of vertices:
 		for(short i = 0; i<out.length; i++) {
 			out[i] = i;
 		}
 
 		return out;
-	}
-
-	//function to compute the normal of a face defined by 3 vertices:
-	private float[] computeNormal(float[] x, float[] y, float[] z) {
-			float[] y_x = {
-					y[0] - x[0],
-					y[1] - x[1],
-					y[2] - y[2]
-			};
-
-			float[] z_x = {
-					z[0] - x[0],
-					z[1] - x[1],
-					z[2] - x[2]
-			};
-
-			float[] n;
-			n = VectorUtil.normalizeVec3(VectorUtil.crossVec3(new float[3], y_x, z_x));
-			return n;
 	}
 
 	private float[] computeIntersectionMouseRay(float[] mouseRay) {
@@ -1808,16 +1773,12 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 					break;
 				}
 			}
-			//System.out.println("Tmp: " + tmp);
 			if (tmp != maxNumDrops) {
 				numDrops++;
 				dropStartTime[tmp] = System.currentTimeMillis();
 				dropPositions[tmp][0] = x;
 				dropPositions[tmp][1] = z;
 
-				/*
-				 * start = System.currentTimeMillis(); drop = true;
-				 */
 				try {
 					TimeUnit.SECONDS.sleep(7);
 					numDrops--;
@@ -1880,14 +1841,13 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
  		public interface Uniform {
  			int TRANSFORM0 = 1;
  			int TRANSFORM1 = 2;
- 			int TIME = 3;
- 			int LIGHT0 = 4;
- 			int MATERIAL = 5;
- 			int CAMERA = 6;
- 			int CLIP_PLANE = 7;
-			int NOISE_TIME = 8;
-			int DROP_DATA = 9;
-			int DROP_COUNT = 10;
+ 			int LIGHT0 = 3;
+ 			int MATERIAL = 4;
+ 			int CAMERA = 5;
+ 			int CLIP_PLANE = 6;
+			int NOISE_TIME = 7;
+			int DROP_DATA = 8;
+			int DROP_COUNT = 9;
  		}
 
  		public interface Stream {
