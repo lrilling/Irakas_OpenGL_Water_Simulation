@@ -592,13 +592,13 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         	sceneModelMatrixPointer.asFloatBuffer().put(rotateZ);
         	
     	    float[] scale = FloatUtil.makeScale(new float[16], false, 1f, 1f, 1f);
-    	    float[] translate = FloatUtil.makeTranslation(new float[16], false, 0f, -0.2f, 0f); 	
-    	    waterModelMatrixPointer.asFloatBuffer().put(FloatUtil.multMatrix(translate, scale));
+//    	    float[] translate = FloatUtil.makeTranslation(new float[16], false, 0f, 0f, 0f); 	
+    	    waterModelMatrixPointer.asFloatBuffer().put(scale);
     	    
     	    //translate = FloatUtil.makeTranslation(new float[16], false, 0f, -0.24f, 0f);
-    	    float[] rotateX = FloatUtil.makeRotationEuler(new float[16], 0, FloatUtil.PI, 0, 0);
-    	    float[] waterDown = FloatUtil.multMatrix(rotateX, scale);
-    	    waterDownModelMatrixPointer.asFloatBuffer().put(FloatUtil.multMatrix(translate, scale));
+//    	    float[] rotateX = FloatUtil.makeRotationEuler(new float[16], 0, FloatUtil.PI, 0, 0);
+//    	    float[] waterDown = FloatUtil.multMatrix(rotateX, scale);
+    	    waterDownModelMatrixPointer.asFloatBuffer().put(scale);
 
 //        	System.out.println("Render time " + clipPlane + ": --> ClipPlane: " + clipPlanePointer.asFloatBuffer().get(0) + " " + clipPlanePointer.asFloatBuffer().get(1) + " " + clipPlanePointer.asFloatBuffer().get(2) + " " + clipPlanePointer.asFloatBuffer().get(3));
 
@@ -1385,11 +1385,11 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
     	// --------------------------------------------
 
-    	// Set the draw buffer (the output from the fragment shader)
-        IntBuffer drawBuffer = GLBuffers.newDirectIntBuffer(new int[] { GL_COLOR_ATTACHMENT0 });
-
-        // Create the Frame Buffer
-        gl.glDrawBuffers(1, drawBuffer);
+//    	// Set the draw buffer (the output from the fragment shader)
+//        IntBuffer drawBuffer = GLBuffers.newDirectIntBuffer(new int[] { GL_COLOR_ATTACHMENT0 });
+//
+//        // Create the Frame Buffer
+//        gl.glDrawBuffers(1, drawBuffer);
 
         // Make sure the frame buffer has been properly created
         if (gl.glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -1466,11 +1466,11 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
     	// --------------------------------------------
 
-    	// Set the draw buffer (the output from the fragment shader)
-        IntBuffer drawBuffer2 = GLBuffers.newDirectIntBuffer(new int[] { GL_COLOR_ATTACHMENT0 });
-
-        // Create the Frame Buffer
-        gl.glDrawBuffers(1, drawBuffer2);
+//    	// Set the draw buffer (the output from the fragment shader)
+//        IntBuffer drawBuffer2 = GLBuffers.newDirectIntBuffer(new int[] { GL_COLOR_ATTACHMENT0 });
+//
+//        // Create the Frame Buffer
+//        gl.glDrawBuffers(1, drawBuffer2);
 
         // Make sure the frame buffer has been properly created
         if (gl.glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -1532,11 +1532,11 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
     	// --------------------------------------------
 
-    	// Set the draw buffer (the output from the fragment shader)
-        IntBuffer drawBuffer3 = GLBuffers.newDirectIntBuffer(new int[] { GL_COLOR_ATTACHMENT0 });
-
-        // Create the Frame Buffer
-        gl.glDrawBuffers(1, drawBuffer3);
+//    	// Set the draw buffer (the output from the fragment shader)
+//        IntBuffer drawBuffer3 = GLBuffers.newDirectIntBuffer(new int[] { GL_COLOR_ATTACHMENT0 });
+//
+//        // Create the Frame Buffer
+//        gl.glDrawBuffers(1, drawBuffer3);
 
         // Make sure the frame buffer has been properly created
         if (gl.glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -1613,11 +1613,11 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
     	// --------------------------------------------
 
-    	// Set the draw buffer (the output from the fragment shader)
-        IntBuffer drawBuffer4 = GLBuffers.newDirectIntBuffer(new int[] { GL_COLOR_ATTACHMENT0 });
-
-        // Create the Frame Buffer
-        gl.glDrawBuffers(1, drawBuffer4);
+//    	// Set the draw buffer (the output from the fragment shader)
+//        IntBuffer drawBuffer4 = GLBuffers.newDirectIntBuffer(new int[] { GL_COLOR_ATTACHMENT0 });
+//
+//        // Create the Frame Buffer
+//        gl.glDrawBuffers(1, drawBuffer4);
 
         // Make sure the frame buffer has been properly created
         if (gl.glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)

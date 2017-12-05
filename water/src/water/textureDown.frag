@@ -107,7 +107,7 @@ void main()
 //    }
 
     vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords + reflDistortion).rgba;
-    vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords + refrDistortion).rgba;
+    vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords + reflDistortion).rgba;
 
     //Set the vector pointing to the camera
     vec3 viewVector = normalize(toCameraVector);
