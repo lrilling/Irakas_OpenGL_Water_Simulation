@@ -196,7 +196,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
     private float[] sceneMaterialProperties = {
         // Shininess
-        100.0f
+        1000.0f
     };
     
     private float[] waterMaterialProperties = {
@@ -635,11 +635,12 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         this.width = width;
         this.height = height;
 
-        float[] frustum = FloatUtil.makeFrustum(new float[16], 0, false, -3.2f, 3.2f, -1.8f, 1.8f, 1f, 100f);
+        float[] frustum = FloatUtil.makeFrustum(new float[16], 0, false, -1.6f, 1.6f, -0.9f, 0.9f, 1f, 100f);
+        float[] zoomFrustum = FloatUtil.makeFrustum(new float[16], 0, false, -1f, 1f, -0.5625f, 0.5625f, 1f, 100f);
+        
+        globalMatricesPointer.asFloatBuffer().put(zoomFrustum);
 
-        globalMatricesPointer.asFloatBuffer().put(frustum);
-
-				mousePicker.updateProjection(frustum);
+				mousePicker.updateProjection(zoomFrustum);
 
 				mousePicker.updateWindow(width, height);
 

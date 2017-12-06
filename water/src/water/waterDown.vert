@@ -86,27 +86,27 @@ float addDrops(float x, float z){
 
 				float refl = 2*widthOfWater - tmp_x;
 
-				float refl_r = r = 3*sqrt(pow(x - refl,2) + pow(z - 0 ,2))/(widthOfWater);
+				float refl_r = r = 3*sqrt(pow(x - refl,2) + pow(z,2))/(widthOfWater);
 
-				tmp = tmp + 0.8 * dropFunction(refl_r, tmp_t);
+				tmp = tmp + 0.3 * dropFunction(refl_r, tmp_t);
 
 				refl = -2*widthOfWater - tmp_x;
 
-				refl_r = r = 3*sqrt(pow(x - refl,2) + pow(z - 0 ,2))/(widthOfWater);
+				refl_r = r = 3*sqrt(pow(x - refl,2) + pow(z ,2))/(widthOfWater);
 
-				tmp = tmp + 0.8 * dropFunction(refl_r, tmp_t);
+				tmp = tmp + 0.3 * dropFunction(refl_r, tmp_t);
 
 				refl = 2*widthOfWater - tmp_z;
 
-				refl_r = r = 3*sqrt(pow(x - 0,2) + pow(z - refl ,2))/(widthOfWater);
+				refl_r = r = 3*sqrt(pow(x,2) + pow(z - refl ,2))/(widthOfWater);
 
-				tmp = tmp + 0.9 * dropFunction(refl_r, tmp_t);
+				tmp = tmp + 0.3 * dropFunction(refl_r, tmp_t);
 
 				refl = -2*widthOfWater - tmp_z;
 
-				refl_r = r = 3*sqrt(pow(x - 0,2) + pow(z - refl,2))/(widthOfWater);
+				refl_r = r = 3*sqrt(pow(x,2) + pow(z - refl,2))/(widthOfWater);
 
-				tmp = tmp + 0.7 * dropFunction(refl_r, tmp_t);
+				tmp = tmp + 0.3 * dropFunction(refl_r, tmp_t);
 			}
 			else{
 				tmp = position.y;

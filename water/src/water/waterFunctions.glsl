@@ -20,7 +20,7 @@ float gauss(float x, float y){
 
 float dropFunction(float r, float t){
 	t = 1.5* t;
-	return 4*(widthOfWater)*(sin((r/constant_2)-8*t) * gauss(10*((r-t)/(0.15*t)), height - ((height/(height-1))-10*t)));
+	return 2*(widthOfWater)*(sin((r/constant_2)-8*t) * gauss(10*((r-t)/(0.15*t)), height - ((height/(height-1))-10*t)));
 }
 
 float noiseFunction(float x, float y, float z, float t){
