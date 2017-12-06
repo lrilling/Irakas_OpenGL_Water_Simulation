@@ -65,6 +65,7 @@ void main()
 {
     // Normalize the interpolated normal to ensure unit length
     NN = normalize(N);
+    //NN = normalize(cross(dFdx(worldVertex), dFdy(worldVertex)));
 
     // We normalize the clip space by using perspective division and we convert the coordinate system
     ndc = (clipSpace.xy/clipSpace.w)/2.0 + 0.5;

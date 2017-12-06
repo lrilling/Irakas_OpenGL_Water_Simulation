@@ -143,10 +143,10 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     };
     
     private float[] waterDownVertexData = {
-          7f, -0.0001f,  7f,		0f, 0f ,1f,		0f, -1f, 0f,
-         -7f, -0.0001f,  7f,		0f, 0f ,1f,		0f, -1f, 0f,
-         -7f, -0.0001f, -7f,		0f, 0f ,1f,		0f, -1f, 0f,
-          7f, -0.0001f, -7f,		0f, 0f ,1f, 	0f, -1f, 0f
+          7f, -0.0005f,  7f,		0f, 0f ,1f,		0f, -1f, 0f,
+         -7f, -0.0005f,  7f,		0f, 0f ,1f,		0f, -1f, 0f,
+         -7f, -0.0005f, -7f,		0f, 0f ,1f,		0f, -1f, 0f,
+          7f, -0.0005f, -7f,		0f, 0f ,1f, 	0f, -1f, 0f
     };
 
     // Window triangles
@@ -244,7 +244,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     private int refractionWidth = 1080;
     private int refractionHeight = 720;
 
-    private boolean drop = false;
+    private int detail = 6;
 
     private MousePicker mousePicker;
     private int mouseXTmp = 0;
@@ -554,15 +554,8 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         {
 					long now = System.currentTimeMillis();
 					float diff = (float) (now - start) / 100;
+					
 					float noiseDiff = (float) (now - noise_start) / 100;
-
-					/*
-					if (drop) {
-						timePointer.asFloatBuffer().put(diff);
-					} else {
-						timePointer.asFloatBuffer().put(0);
-					}
-					*/
 					noiseTimePointer.asFloatBuffer().put(noiseDiff);
 
 					ArrayList<Float> dropList = new ArrayList<Float>();
@@ -642,7 +635,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         this.width = width;
         this.height = height;
 
-        float[] frustum = FloatUtil.makeFrustum(new float[16], 0, false, -1.6f, 1.6f, -0.9f, 0.9f, 1f, 100f);
+        float[] frustum = FloatUtil.makeFrustum(new float[16], 0, false, -3.2f, 3.2f, -1.8f, 1.8f, 1f, 100f);
 
         globalMatricesPointer.asFloatBuffer().put(frustum);
 
@@ -956,8 +949,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     }
 
     public void initBuffers(GL4 gl) {
-    	int detail = 6;
-
     	for(int i = 0; i<detail; i++) {
     		waterVertexData = subdivideMesh(waterVertexData, waterElementData);
     		waterElementData = createMeshElementData(waterVertexData);

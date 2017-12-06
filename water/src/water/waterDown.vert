@@ -124,10 +124,14 @@ void main() {
 	float tmp_y = addDrops(position.x, position.z);
 	positionSine = vec3(position.x, position.y + tmp_y, position.z);
 
-	float dx = addDrops(position.x - 0.05, position.z) - tmp_y;
-	float dz = addDrops(position.x, position.z - 0.05) - tmp_y;
+	float DYdx = (addDrops(position.x - 0.005, position.z) - tmp_y) / 0.005;
+	float DYdz = (addDrops(position.x, position.z - 0.005) - tmp_y) / 0.005;
 
-	vec3 computedNormal = vec3(dx, -1, dz);
+	vec3 tangentX = vec3(1, DYdx, 0);
+	vec3 tangentZ = vec3(0, DYdz, 1);
+
+	vec3 computedNormal = cross(tangentX, tangentZ);
+	//vec3 computedNormal = vec3(DYdx, -1, DYdz);
 
 	clipSpace = normalize(proj * (view * (model * vec4(positionSine,  1))));
 
