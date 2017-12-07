@@ -44,7 +44,10 @@ void main() {
     // Set the world vertex for calculating the light direction in the fragment shader
     worldVertex = normalize(vec3(model * vec4(position, 1)));
 
-    gl_ClipDistance[0] = dot(vec4(worldVertex, 1), clip_plane);
+    // Set the world position without normalization for calculating the distance to the clipping plane
+    vec4 worldPosition = model * vec4(position, 1);
+
+    gl_ClipDistance[0] = dot(worldPosition, clip_plane);
 
     // Set the transformed normal
     N = mat3(model) * normal;

@@ -9,7 +9,7 @@
 // Incoming vertex position, Model Space.
 layout (location = 0) in vec3 position;
 
-// Incoming texture coordinate
+// Incoming color
 layout (location = 1) in vec3 color;
 
 // Incoming normal
@@ -137,7 +137,7 @@ float addDrops(float x, float z){
 
 		}
 
-		tmp = tmp + 0.04*abs(pnoise(vec3(2*x+0.05*nt, position.y, 2*z+0.05*nt), vec3(5.0, 5.0, 5.0)));
+		tmp = tmp + 0.04*abs(pnoise(vec3(1.5*x-0.05*nt, position.y, 1.5*z+0.05*nt), vec3(5.0, 5.0, 5.0)));
 		return tmp;
 }
 
@@ -150,7 +150,7 @@ void main() {
 	float dx = addDrops(position.x - 0.05, position.z) - tmp_y;
 	float dz = addDrops(position.x, position.z - 0.05) - tmp_y;
 
-	vec3 computedNormal = vec3(dx, 1, dz);
+	vec3 computedNormal = vec3(-dx, 1, -dz);
 
 	clipSpace = normalize(proj * (view * (model * vec4(positionSine,  1))));
 

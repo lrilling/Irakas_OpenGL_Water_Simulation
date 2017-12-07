@@ -32,6 +32,7 @@ layout (std140, binding = 6) uniform Camera
 layout (location = 0) out vec4 outputColor;
 
 // Texture samplers
+//uniform sampler2D textureSampler;
 uniform sampler2D reflectionTextSampler;
 uniform sampler2D refractionTextSampler;
 uniform sampler2D depthMap;
@@ -64,7 +65,7 @@ void main()
     // Normalize the interpolated normal to ensure unit length
     NN = normalize(N);
 
-    // We normalize the clip space by using perspective division and we convert the coordinate system
+    // Transfromr to the Normalized Device Space by using perspective division and map the coordinate system
     ndc = (clipSpace.xy/clipSpace.w)/2.0 + 0.5;
 
     vec2 reflectionTextCoords = vec2(ndc.x, -ndc.y);
@@ -107,7 +108,7 @@ void main()
     vec2 refrDistortion = vec2(refrOffsetX + NN.x, refrOffsetZ + NN.y);
 
     vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords + reflDistortion).rgba;
-    vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords + refrDistortion).rgba;
+    vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords + reflDistortion).rgba;
 
     //Set the vector pointing to the camera
     vec3 viewVector = normalize(toCameraVector);
@@ -118,7 +119,10 @@ void main()
     textureColor = mix(reflectionTextColor, refractionTextColor, refractiveFactor);
     textureColor = mix(textureColor, vec4(0.0, 0.3, 0.5, 1.0), 0.2);
     textureColor.a = clamp(waterDepth, 0.0, 1.0);
-//    textureColor = refractionTextColor;
+
+//    vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords).rgba;
+//    vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords).rgba;
+//    textureColor = mix(reflectionTextColor, refractionTextColor, 0.5);
 
 //    textureColor = vec4(waterDepth/50.0);
 
