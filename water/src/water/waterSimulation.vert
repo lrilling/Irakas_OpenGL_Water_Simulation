@@ -1,29 +1,30 @@
-
 #version 450
 
+#include semantic.glsl
+
 // Incoming vertex position, Model Space.
-layout (location = 0) in vec3 position;
+layout (location = POSITION) in vec3 position;
 
 // Incoming texture coordinate
-layout (location = 1) in vec3 color;
+layout (location = COLOR) in vec3 color;
 
 // Incoming normal
-layout (location = 2) in vec3 normal;
+layout (location = NORMAL) in vec3 normal;
 
 // Projection and view matrices.
-layout (binding = 1) uniform Transform0
+layout (binding = TRANSFORM0) uniform Transform0
 {
     mat4 proj;
     mat4 view;
 };
 
 // model matrix
-layout (binding = 2) uniform Transform1
+layout (binding = TRANSFORM1) uniform Transform1
 {
     mat4 model;
 };
 
-layout (binding = 7) uniform ClipPlane
+layout (binding = CLIP_PLANE) uniform ClipPlane
 {
     vec4 clip_plane;
 };
