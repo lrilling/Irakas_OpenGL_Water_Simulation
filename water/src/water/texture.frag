@@ -121,6 +121,7 @@ void main()
     textureColor = mix(textureColor, vec4(0.0, 0.3, 0.5, 1.0), 0.2);
     textureColor.a = clamp(waterDepth, 0.0, 1.0);
 //    textureColor = refractionTextColor;
+    //textureColor = vec4(0,0,1,1);
 
 //    textureColor = vec4(waterDepth/50.0);
 

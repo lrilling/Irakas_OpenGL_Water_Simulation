@@ -84,29 +84,32 @@ float addDrops(float x, float z){
 			if(tmp_t != 0){
 				tmp = tmp + dropFunction(r, tmp_t);
 
+				//============REFLECTIONS:===========================
+
+				//x-value of the center of the first reflection:
 				float refl = 2*widthOfWater - tmp_x;
+				//Distance to the center of the first reflection:
+				float refl_r = 3*sqrt(pow(x - refl,2) + pow(z - 0 ,2))/(widthOfWater);
+				tmp = tmp + 0.5 * dropFunction(refl_r, tmp_t);
 
-				float refl_r = r = 3*sqrt(pow(x - refl,2) + pow(z - 0 ,2))/(widthOfWater);
-
-				tmp = tmp + 0.3 * dropFunction(refl_r, tmp_t);
-
+				//x-value of the center of the second reflection:
 				refl = -2*widthOfWater - tmp_x;
+				//Distance to the center of the second reflection:
+				refl_r = 3*sqrt(pow(x - refl,2) + pow(z - 0 ,2))/(widthOfWater);
+				tmp = tmp + 0.5 * dropFunction(refl_r, tmp_t);
 
-				refl_r = r = 3*sqrt(pow(x - refl,2) + pow(z - 0 ,2))/(widthOfWater);
-
-				tmp = tmp + 0.3 * dropFunction(refl_r, tmp_t);
-
+				//z-value of the center of the third reflection:
 				refl = 2*widthOfWater - tmp_z;
+				//Distance to the center of the third reflection:
+				refl_r  = 3*sqrt(pow(x - 0,2) + pow(z - refl ,2))/(widthOfWater);
+				tmp = tmp + 0.5 * dropFunction(refl_r, tmp_t);
 
-				refl_r = r = 3*sqrt(pow(x - 0,2) + pow(z - refl ,2))/(widthOfWater);
-
-				tmp = tmp + 0.3 * dropFunction(refl_r, tmp_t);
-
+				//z-value of the center of the fourth reflection:
 				refl = -2*widthOfWater - tmp_z;
+				//Distance to the center of the fourth reflection:
+				refl_r = 3*sqrt(pow(x - 0,2) + pow(z - refl,2))/(widthOfWater);
+				tmp = tmp + 0.5 * dropFunction(refl_r, tmp_t);
 
-				refl_r = r = 3*sqrt(pow(x - 0,2) + pow(z - refl,2))/(widthOfWater);
-
-				tmp = tmp + 0.3 * dropFunction(refl_r, tmp_t);
 			}
 			else{
 				tmp = position.y;

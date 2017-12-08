@@ -1,5 +1,5 @@
 /*
- * MousePicker based on this video tutorial: https://www.youtube.com/watch?v=DLKN0jExRIM
+ * MousePicker based on a video tutorial: https://www.youtube.com/watch?v=DLKN0jExRIM
  * as well as on this paper: http://antongerdelan.net/opengl/raycasting.html
 */
 package mousePicker;
@@ -45,7 +45,7 @@ public class MousePicker {
 	
 	private float[] getNormalizedDeviceCoords(int mouseX, int mouseY) {
 		float x = (2f*mouseX) / windowWidth - 1;
-		float y = 1 - (2f*mouseY) / windowHeight;
+		float y = -((2f*mouseY) / windowHeight - 1);
 		
 		float[] out = {x, y};
 		return out;
@@ -89,7 +89,7 @@ public class MousePicker {
 		//4D vector containing the inverted projection
 		float[] eyeCoords = toEyeCoords(clipCoords);
 		
-		//2D vector containing the world coords of our mouse ray
+		//3D vector containing the world coords of our mouse ray
 		float[] worldCoords = toWorldCoords(eyeCoords);
 		
 		return worldCoords;

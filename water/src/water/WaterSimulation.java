@@ -229,9 +229,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 		private long noise_start;
 
     //Variables for controls:
-    private Set<Short> pressed = new HashSet<Short>();
     private boolean shift = false;
-
     private float angleX = 0.0f;
     private float angleY = 0.0f;
 
@@ -244,11 +242,15 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
     private int refractionWidth = 1080;
     private int refractionHeight = 720;
 
+    //number of subdivisions for the water mesh:
     private int detail = 6;
+    
+    private boolean wireframe = false;
+    private boolean wireframeWater = false;
 
     private MousePicker mousePicker;
-    private int mouseXTmp = 0;
-    private int mouseYTmp = 0;
+    private int mouseXOld = 0;
+    private int mouseYOld = 0;
     
 
     // Application setup function
@@ -277,7 +279,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
         // Add OpenGL and keyboard event listeners
         window.addGLEventListener(this);
         window.addKeyListener(this);
-				window.addMouseListener(this);
+		window.addMouseListener(this);
 
         // Create and start the animator
         animator = new Animator(window);
@@ -329,6 +331,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 
         // Enable Opengl depth buffer testing
         gl.glEnable(GL_DEPTH_TEST);
+       
 
         //Store the start time of the application for the time diff:
         start = System.currentTimeMillis();
@@ -484,6 +487,9 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	    gl.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.MATERIAL, bufferNames.get(Buffer.WATER_MATERIAL_PROPERTIES));
 
 	    gl.glBindVertexArray(vertexArrayName.get(VertexArray.WATER));
+	    
+	    if(wireframeWater)
+	    	gl.glPolygonMode(GL_FRONT_AND_BACK, gl.GL_LINE);
 
 	    gl.glDrawElements(GL_TRIANGLES, waterElementData.length, GL_UNSIGNED_SHORT, 0);
 	    
@@ -520,6 +526,8 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	    gl.glUseProgram(0);
 	    gl.glBindVertexArray(0);
 	    gl.glDisable(gl.GL_BLEND);
+	    
+	    gl.glPolygonMode(GL_FRONT_AND_BACK, gl.GL_FILL);
 
     }
 
@@ -619,9 +627,12 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
                 GL_UNIFORM_BUFFER,
                 Semantic.Uniform.CAMERA,
                 bufferNames.get(Buffer.CAMERA_PROPERTIES));
-
+        if(wireframe)
+        	gl.glPolygonMode(GL_FRONT_AND_BACK, gl.GL_LINE);
         //Draw the triangle
         gl.glDrawElements(GL_TRIANGLES, sceneElementData.length, GL_UNSIGNED_SHORT, 0);
+        
+        gl.glPolygonMode(GL_FRONT_AND_BACK, gl.GL_FILL);
 
     }
 
@@ -687,98 +698,224 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	//		Shift + Arrow-key pressed: translation
 	@Override
 	public void keyPressed(KeyEvent e) {
-		// add the pressed key to the set
-		pressed.add(e.getKeyCode());
-
-		float[] rotateY = FloatUtil.makeRotationEuler(new float[16], 0, 0f, -angleY, 0f);
-		float[] rotateX = FloatUtil.makeRotationEuler(new float[16], 0, -angleX, 0, 0f);
-		
-		float[] roation = FloatUtil.multMatrix(rotateY, rotateX);
-		
-		float[] movement = {0f, 0f, 0f, 1f};
+		//vector to store the movement relative to the camera angle
+		float[] movement = {0f, 0f, 0f, 0f};
 		if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
 			shift = true;
 		}
-		if (pressed.size() > 1) {
-			Iterator<Short> it = pressed.iterator();
-			short tmp;
-			while (it.hasNext()) {
-				tmp = it.next();
-				if (shift) {
-					// change the camera properties if, shift and an arrow key are pressed (effects
-					// the global matrix):
-					if (tmp == KeyEvent.VK_UP) {
-						movement[2] = -1f;
-						//cameraProperties[2] = cameraProperties[2] - 0.5f;
-					} else if (tmp == KeyEvent.VK_DOWN) {
-						movement[2] = 1f;
-						//cameraProperties[2] = cameraProperties[2] + 0.5f;
-					} else if (tmp == KeyEvent.VK_RIGHT) {
-						movement[0] = -1f;
-						//cameraProperties[0] = cameraProperties[0] + 0.5f;
-					} else if (tmp == KeyEvent.VK_LEFT) {
-						movement[1] = 1f;
-						//cameraProperties[0] = cameraProperties[0] - 0.5f;
-					}
-					else if (tmp == KeyEvent.VK_W) {
-						movement[2] = -1f;
-						//cameraProperties[2] = cameraProperties[2] - 0.5f;
-					}
-					else if (tmp == KeyEvent.VK_S) {
-						movement[2] = 1f;
-						//cameraProperties[2] = cameraProperties[2] + 0.5f;
+		//pressing A or D always leads to a movement to the left or the right 
+		//--> no difference by pressing shift
+		else if(e.getKeyCode() == KeyEvent.VK_A) {
+			new Thread(()-> {
+				for(int i=0; i<10; i++) {
+					movement[0] -= 0.01;
+					applyMovementToCamera(movement);
+					try {
+						TimeUnit.MILLISECONDS.sleep(20);
+					} catch (InterruptedException e1) {
+						 
+						e1.printStackTrace();
 					}
 				}
-
-			}
-		} else {
-			// Destroy the window if the escape key is pressed
-			if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-				new Thread(() -> {
-					window.destroy();
+			}).start();
+		}
+		else if(e.getKeyCode() == KeyEvent.VK_D) {
+			new Thread(()-> {
+				for(int i=0; i<10; i++) {
+					movement[0] += 0.01;
+					applyMovementToCamera(movement);
+					try {
+						TimeUnit.MILLISECONDS.sleep(20);
+					} catch (InterruptedException e1) {
+						 
+						e1.printStackTrace();
+					}
+				}
+			}).start();
+		}
+		// Destroy the window if the escape key is pressed
+		else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			new Thread(() -> {
+				window.destroy();
+			}).start();
+		}
+		
+		if (shift) {
+			// change the movement vector if shift and an arrow key are pressed
+			if (e.getKeyCode() == KeyEvent.VK_UP) {
+				//movement forwards
+				new Thread(()-> {
+					for(int i=0; i<10; i++) {
+						movement[2] -= 0.01;
+						applyMovementToCamera(movement);
+						try {
+							TimeUnit.MILLISECONDS.sleep(20);
+						} catch (InterruptedException e1) {
+							 
+							e1.printStackTrace();
+						}
+					}
+				}).start();
+			} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+				//movement backwards
+				new Thread(()-> {
+					for(int i=0; i<10; i++) {
+						movement[2] += 0.01;
+						applyMovementToCamera(movement);
+						try {
+							TimeUnit.MILLISECONDS.sleep(20);
+						} catch (InterruptedException e1) {
+							 
+							e1.printStackTrace();
+						}
+					}
+				}).start();
+			} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+				//movement to the right
+				new Thread(()-> {
+					for(int i=0; i<10; i++) {
+						movement[0] += 0.01;
+						applyMovementToCamera(movement);
+						try {
+							TimeUnit.MILLISECONDS.sleep(20);
+						} catch (InterruptedException e1) {
+							 
+							e1.printStackTrace();
+						}
+					}
+				}).start();
+			} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+				//movement to the left
+				new Thread(()-> {
+					for(int i=0; i<10; i++) {
+						movement[0] -= 0.01;
+						applyMovementToCamera(movement);
+						try {
+							TimeUnit.MILLISECONDS.sleep(20);
+						} catch (InterruptedException e1) {
+							 
+							e1.printStackTrace();
+						}
+					}
 				}).start();
 			}
-			// change the rotation of the global matrix if an arrow key is pressed without
-			// shift
+			else if (e.getKeyCode() == KeyEvent.VK_W) {
+				new Thread(()-> {
+					for(int i=0; i<10; i++) {
+						movement[1] += 0.01;
+						applyMovementToCamera(movement);
+						try {
+							TimeUnit.MILLISECONDS.sleep(20);
+						} catch (InterruptedException e1) {
+							 
+							e1.printStackTrace();
+						}
+					}
+				}).start();
+			}
+			else if (e.getKeyCode() == KeyEvent.VK_S) {
+				new Thread(()-> {
+					for(int i=0; i<10; i++) {
+						movement[1] -= 0.01;
+						applyMovementToCamera(movement);
+						try {
+							TimeUnit.MILLISECONDS.sleep(20);
+						} catch (InterruptedException e1) {
+							 
+							e1.printStackTrace();
+						}
+					}
+				}).start();
+			}
+			else if(e.getKeyCode() == KeyEvent.VK_L)
+				wireframeWater = !wireframeWater;
+		}
+		else {
+			// change the rotation for the view matrix if an arrow key is pressed without shift
 			if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 				new Thread(() -> {
-					angleY += 0.08f;
+					for(int i=0; i<8; i++) {
+						angleY += 0.01;
+						try {
+							TimeUnit.MILLISECONDS.sleep(20);
+						} catch (InterruptedException e1) {
+							 
+							e1.printStackTrace();
+						}
+					}
+					//angleY += 0.08f;
 				}).start();
 			}
 			if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 				new Thread(() -> {
-					angleY -= 0.08f;
+					for(int i=0; i<8; i++) {
+						angleY -= 0.01;
+						try {
+							TimeUnit.MILLISECONDS.sleep(20);
+						} catch (InterruptedException e1) {
+							 
+							e1.printStackTrace();
+						}
+					}
 				}).start();
 			}
 			if (e.getKeyCode() == KeyEvent.VK_UP) {
 				new Thread(() -> {
-					angleX -= 0.08f;
+					for(int i=0; i<8; i++) {
+						angleX -= 0.01;
+						try {
+							TimeUnit.MILLISECONDS.sleep(20);
+						} catch (InterruptedException e1) {
+							 
+							e1.printStackTrace();
+						}
+					}
 				}).start();
 			}
 			if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 				new Thread(() -> {
-					angleX += 0.08f;
+					for(int i=0; i<8; i++) {
+						angleX += 0.01;
+						try {
+							TimeUnit.MILLISECONDS.sleep(20);
+						} catch (InterruptedException e1) {
+							 
+							e1.printStackTrace();
+						}
+					}
 				}).start();
 			}
 			if(e.getKeyCode() == KeyEvent.VK_W) {
-				movement[1] = 1f;
-				//cameraProperties[1] = cameraProperties[1] + 0.5f;
+				new Thread(()-> {
+					for(int i=0; i<10; i++) {
+						movement[2] -= 0.01;
+						applyMovementToCamera(movement);
+						try {
+							TimeUnit.MILLISECONDS.sleep(20);
+						} catch (InterruptedException e1) {
+							 
+							e1.printStackTrace();
+						}
+					}
+				}).start();
+				//movement[1] = 1f;
 			}
 			else if(e.getKeyCode() == KeyEvent.VK_S) {
-				movement[1] = -1f;
-				//cameraProperties[1] = cameraProperties[1] - 0.5f;
-			}
-			else if(e.getKeyCode() == KeyEvent.VK_A) {
-				movement[0] = -1f;
-				//cameraProperties[0] = cameraProperties[0] - 0.5f;
-			}
-			else if(e.getKeyCode() == KeyEvent.VK_D) {
-				movement[0] = 1f;
-				//cameraProperties[0] = cameraProperties[0] + 0.5f;
+				new Thread(()-> {
+					for(int i=0; i<10; i++) {
+						movement[2] += 0.01;
+						applyMovementToCamera(movement);
+						try {
+							TimeUnit.MILLISECONDS.sleep(20);
+						} catch (InterruptedException e1) {
+							 
+							e1.printStackTrace();
+						}
+					}
+				}).start();
 			}
 			if (e.getKeyCode() == KeyEvent.VK_N) {
 				new Thread(() -> {
-					//System.out.println("key pressed!");
 					int tmp = maxNumDrops;
 					for (int i = 0; i < dropStartTime.length; i++) {
 						if (dropStartTime[i] == 0f) {
@@ -786,7 +923,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 							break;
 						}
 					}
-					//System.out.println("Tmp: " + tmp);
 					if (tmp != maxNumDrops) {
 						numDrops++;
 						float random_x = 7f * (float) Math.random();
@@ -794,23 +930,31 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 						dropStartTime[tmp] = System.currentTimeMillis();
 						dropPositions[tmp][0] = random_x;
 						dropPositions[tmp][1] = random_z;
-
-						/*
-						 * start = System.currentTimeMillis(); drop = true;
-						 */
 						try {
 							TimeUnit.SECONDS.sleep(7);
 							numDrops--;
 							dropStartTime[tmp] = 0;
 						} catch (InterruptedException e1) {
-							// TODO Auto-generated catch block
+							 
 							e1.printStackTrace();
 						}
 					}
 
 				}).start();
 			}
+			if(e.getKeyCode() == KeyEvent.VK_L) {
+				wireframe = !wireframe;
+			}
 		}
+		
+		
+	}
+	
+	private void applyMovementToCamera(float[] movement) {
+		//Create rotation matrix to make the movement relative to the camera angle
+		float[] rotateY = FloatUtil.makeRotationEuler(new float[16], 0, 0f, -angleY, 0f);
+		float[] rotateX = FloatUtil.makeRotationEuler(new float[16], 0, -angleX, 0, 0f);
+		float[] roation = FloatUtil.multMatrix(rotateY, rotateX);
 		
 		movement = FloatUtil.multMatrixVec(roation, movement, new float[4]);
 		
@@ -822,7 +966,6 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	// KeyListener.keyPressed implementation
 	@Override
 	public void keyReleased(KeyEvent e) {
-		pressed.remove(e.getKeyCode());
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
 			shift = false;
 		}
@@ -833,7 +976,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 		System.out.println("Mouse clicked!");
 		float[] mouseRay = mousePicker.getMouseRay(e.getX(), e.getY());
 
-		float[] dropXZ = computeIntersectionMouseRay(mouseRay);
+		float[] dropXZ = computeIntersection(mouseRay);
 
 		if(FloatUtil.abs(dropXZ[0]) <= 7f && FloatUtil.abs(dropXZ[1]) <= 7f)
 			addDropAt(dropXZ[0], dropXZ[1]);
@@ -867,21 +1010,19 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		System.out.println("Mouse dragged!");
-		if(FloatUtil.abs(e.getX()-mouseXTmp) >= 20 && FloatUtil.abs(e.getY()-mouseYTmp) >= 20) {
+		if(FloatUtil.sqrt((e.getX()-mouseXOld)*(e.getX()-mouseXOld) + (e.getY()-mouseYOld)*(e.getY()-mouseYOld)) >= 20) {
 			
 			float[] mouseRay = mousePicker.getMouseRay(e.getX(), e.getY());
 	
-			float[] dropXZ = computeIntersectionMouseRay(mouseRay);
+			float[] dropXZ = computeIntersection(mouseRay);
 	
 			if(FloatUtil.abs(dropXZ[0]) <= 7f && FloatUtil.abs(dropXZ[1]) <= 7f)
 				addDropAt(dropXZ[0], dropXZ[1]);
 			
-			mouseXTmp = e.getX();
-			mouseYTmp = e.getY();
+			mouseXOld = e.getX();
+			mouseYOld = e.getY();
 				
 		}
-		
-		
 	}
 
 	@Override
@@ -940,7 +1081,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 			sceneVertexData = sceneModel.getVertexData();
 			sceneElementData = sceneModel.getElementData();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			 
 			e.printStackTrace();
 		}
     	catch(IOException e) {
@@ -1019,7 +1160,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 						// Create and initialize a named buffer storage for the time property
 						gl.glNamedBufferStorage(bufferNames.get(Buffer.NOISE_TIME), 1 * Float.BYTES, null, GL_MAP_WRITE_BIT);
 
-						gl.glNamedBufferStorage(bufferNames.get(Buffer.DROP_DATA), maxNumDrops * 2 * Float.BYTES, null,
+						gl.glNamedBufferStorage(bufferNames.get(Buffer.DROP_DATA), maxNumDrops * 3 * Float.BYTES, null,
 								GL_MAP_WRITE_BIT);
 
 						gl.glNamedBufferStorage(bufferNames.get(Buffer.DROP_COUNT), 1 * Float.BYTES, null, GL_MAP_WRITE_BIT);
@@ -1740,7 +1881,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 		return out;
 	}
 
-	private float[] computeIntersectionMouseRay(float[] mouseRay) {
+	private float[] computeIntersection(float[] mouseRay) {
 		//The vector is used to define a line from the camera position through the 3D-space.
 		//This line is defined as following: L = cameraVec + lambda * mouseRay.
 		//To find the intersection of this Line with the xz-Plane (where the water is), we just have to set the y-value of the line equal to zero and solve the equation to get lambda.
