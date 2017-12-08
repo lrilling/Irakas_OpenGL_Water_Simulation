@@ -10,7 +10,7 @@
 // Incoming vertex position, Model Space.
 layout (location = POSITION) in vec3 position;
 
-// Incoming texture coordinate
+// Incoming color
 layout (location = COLOR) in vec3 color;
 
 // Incoming normal
@@ -124,26 +124,24 @@ float addDrops(float x, float z){
 
 
 void main() {
+	//calculate new y-position of vertex by adding the drop functions:
 	float tmp_y = addDrops(position.x, position.z);
 	positionSine = vec3(position.x, position.y + tmp_y, position.z);
 
+	//distance for partial derivation (should be close to zero):
 	float h = 0.000005;
-
+	//partial derivations in x- and z-direction / gradients:
 	float DYdx = (addDrops(position.x + h, position.z) - tmp_y)/h;
 	float DYdz = (addDrops(position.x, position.z + h) - tmp_y)/h;
 
+	//tangent vectors in x- and z-direction
 	vec3 tangentX = vec3(1, DYdx, 0);
 	vec3 tangentZ = vec3(0, DYdz, 1);
 
+	//cross product of tangent vectors returns normal:
 	vec3 computedNormal = cross(tangentZ, tangentX);
 
-	//vec3 computedNormal = vec3(DYdx*h, 1, DYdz*h);
-
-	//vec3 dx = vec3(-0.05, -(addDrops(position.x - 0.05, position.z)), 0);
-	//vec3 dz = vec3(0, -(addDrops(position.x, position.z - 0.05)), -0.05);
-
-	//vec3 computedNormal = cross(dx, dz);
-
+	//apply all the matrices on the new position
 	clipSpace = normalize(proj * (view * (model * vec4(positionSine,  1))));
 
     // Normally gl_Position is in Clip Space and we calculate it by multiplying together all the matrices
