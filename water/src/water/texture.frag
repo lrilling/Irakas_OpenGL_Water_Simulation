@@ -51,6 +51,7 @@ vec4 textureColor;
 vec4 ambient;
 vec4 diffuse;
 vec4 specular;
+vec4 specularHighlights;
 
 // Normalize device space
 vec2 ndc;
@@ -76,14 +77,16 @@ void main()
 
     float near = 1.0;
     float far = 100.0;
+
     float textDepth = texture(depthMap, refractionTextCoords).r;
     float floorDistance = 2.0 * near * far / (far + near -(2.0 * textDepth - 1.0) * (far - near));
 
     float depth = gl_FragCoord.z;
     float waterDistance = 2.0 * near * far / (far + near -(2.0 * depth - 1.0) * (far - near));
+
     float waterDepth = floorDistance - waterDistance;
 
-    vec2 reflDistortion = vec2(NN.x, NN.y);
+    vec2 reflDistortion = vec2(NN.x * 0.5, NN.z * 0.5);
 
     float waterDepthY = textDepth - gl_FragCoord.z;
 
@@ -119,19 +122,19 @@ void main()
     vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords + reflDistortion).rgba;
     vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords + reflDistortion).rgba;
 
+    vec4 darkColor = vec4(0.1, 0.1, 0.1, 1.0);
+    refractionTextColor = mix(refractionTextColor, darkColor, textDepth*0.8);
+//    refractionTextColor.rgb = refractionTextColor.rgb * (0.2/waterDepth);
+
     //Set the vector pointing to the camera
     vec3 viewVector = normalize(toCameraVector);
     float refractiveFactor = dot(viewVector, NN);
-    refractiveFactor = pow(refractiveFactor, 0.8);
+    refractiveFactor = pow(refractiveFactor, 0.6);
 
     // Retrieve the texture color by mixing both textures
     textureColor = mix(reflectionTextColor, refractionTextColor, refractiveFactor);
     textureColor = mix(textureColor, vec4(0.0, 0.3, 0.5, 1.0), 0.2);
-    textureColor.a = clamp(waterDepth, 0.0, 1.0);
-
-//    vec4 reflectionTextColor = texture(reflectionTextSampler, reflectionTextCoords).rgba;
-//    vec4 refractionTextColor = texture(refractionTextSampler, refractionTextCoords).rgba;
-//    textureColor = mix(reflectionTextColor, refractionTextColor, 0.5);
+    textureColor.a = clamp(waterDepth/3.0, 0.0, 1.0);
 
 //    textureColor = vec4(waterDepth/50.0);
 
