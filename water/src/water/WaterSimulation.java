@@ -698,6 +698,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	//		Shift + Arrow-key pressed: translation
 	@Override
 	public void keyPressed(KeyEvent e) {
+		System.out.println("Key pressed");
 		//vector to store the movement relative to the camera angle
 		float[] movement = {0f, 0f, 0f, 0f};
 		if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
@@ -966,6 +967,7 @@ public class WaterSimulation implements GLEventListener, KeyListener, MouseListe
 	// KeyListener.keyPressed implementation
 	@Override
 	public void keyReleased(KeyEvent e) {
+		System.out.println("Key released");
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
 			shift = false;
 		}
